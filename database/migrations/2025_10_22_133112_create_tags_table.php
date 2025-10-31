@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
+            $table->string('name');
+            $table->string('slug')->nullable();
+            $table->string('color', 7)->default('#000000'); // hex color code
+            $table->text('description')->nullable();
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
+
+            $table->unique(['organization_id', 'name']);
+            $table->index('slug');
         });
     }
 

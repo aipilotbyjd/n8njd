@@ -13,7 +13,21 @@ return new class extends Migration
     {
         Schema::create('nodes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('workflow_id')->constrained('workflows')->onDelete('cascade');
+            $table->string('type'); // trigger, action, condition
+            $table->string('node_type'); // webhook, http_request, email, etc.
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->json('position'); // { x: number, y: number }
+            $table->json('configuration')->nullable(); // node-specific config
+            $table->json('credentials')->nullable(); // encrypted credentials
+            $table->integer('position_index')->default(0); // order in workflow
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->index(['workflow_id', 'position_index']);
+            $table->index('type');
+            $table->index('node_type');
         });
     }
 

@@ -13,7 +13,19 @@ return new class extends Migration
     {
         Schema::create('credentials', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
+            $table->foreignId('created_by')->constrained('users')->onDelete('cascade');
+            $table->string('name');
+            $table->string('type'); // oauth2, api_key, basic_auth, custom
+            $table->json('data')->nullable(); // encrypted credential data (password, keys, etc.)
+            $table->text('description')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
+
+            $table->index('organization_id');
+            $table->index('type');
+            $table->index('created_by');
         });
     }
 
