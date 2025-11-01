@@ -16,16 +16,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->string('logo')->nullable();
-            $table->string('website')->nullable();
             $table->enum('plan', ['free', 'pro', 'enterprise'])->default('free');
             $table->boolean('is_active')->default(true);
             $table->json('settings')->nullable();
-            $table->timestamp('trial_ends_at')->nullable();
             $table->timestamps();
 
             $table->index('slug');
-            $table->index('plan');
         });
     }
 

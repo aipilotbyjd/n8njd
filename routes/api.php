@@ -248,16 +248,16 @@ Route::prefix('v1')->group(function () {
     });
 
     // 11. ORGANIZATION SERVICE API
-    Route::apiResource('organizations', OrganizationController::class)->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::prefix('organizations/{id}')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(OrganizationController::class)->group(function () {
+    Route::apiResource('organizations', OrganizationController::class)->middleware('auth:api');
+    Route::prefix('organizations/{organization}')->middleware('auth:api')->controller(OrganizationController::class)->group(function () {
         Route::get('members', 'getMembers');
         Route::post('members', 'addMember');
         Route::delete('members/{userId}', 'removeMember');
         Route::patch('members/{userId}/role', 'updateMemberRole');
         Route::get('teams', 'getTeams');
         Route::post('teams', 'createTeam');
-        Route::put('teams/{teamId}', 'updateTeam');
-        Route::delete('teams/{teamId}', 'deleteTeam');
+        Route::put('teams/{team}', 'updateTeam');
+        Route::delete('teams/{team}', 'deleteTeam');
         Route::get('settings', 'getSettings');
         Route::put('settings', 'updateSettings');
         Route::get('usage', 'getUsage');

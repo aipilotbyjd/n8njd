@@ -4,7 +4,7 @@ namespace App\Http\Requests\Organization;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class TeamRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,9 +15,7 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:organizations,slug',
             'description' => 'nullable|string',
-            'plan' => 'nullable|in:free,pro,enterprise',
         ];
     }
 }

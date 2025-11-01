@@ -13,18 +13,14 @@ return new class extends Migration
     {
         Schema::create('organization_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('role')->default('member'); // owner, admin, member, viewer
-            $table->json('permissions')->nullable(); // granular permissions
+            $table->foreignId('organization_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('role')->default('member');
+            $table->json('permissions')->nullable();
             $table->timestamp('joined_at')->nullable();
-            $table->timestamp('invited_at')->nullable();
-            $table->foreignId('invited_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
 
             $table->unique(['organization_id', 'user_id']);
-            $table->index('role');
-            $table->index('user_id');
         });
     }
 

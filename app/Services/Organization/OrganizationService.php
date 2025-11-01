@@ -3,128 +3,113 @@
 namespace App\Services\Organization;
 
 use App\Models\Organization;
-use Illuminate\Support\Str;
+use App\Models\Team;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class OrganizationService
 {
-    public function getOrganizations()
+    public function getUserOrganizations(User $user)
     {
-        return Organization::all();
+        return $user->organizations()->with('users')->get();
     }
 
-    public function createOrganization(array $data, string $userId): Organization
+    public function create(array $data, User $user): Organization
     {
-        $data['id'] = Str::uuid();
-        $data['owner_id'] = $userId;
-
-        return Organization::create($data);
+        return DB::transaction(function () use ($data, $user) {
+            $org = Organization::create($data);
+            $org->users()->attach($user->id, [
+                'role' => 'owner',
+                'joined_at' => now(),
+            ]);
+            return $org->load('users');
+        });
     }
 
-    public function getOrganization(string $id): ?Organization
+    public function update(Organization $org, array $data): Organization
     {
-        return Organization::find($id);
+        $org->update($data);
+        return $org->fresh();
     }
 
-    public function updateOrganization(string $id, array $data): ?Organization
+    public function delete(Organization $org): bool
     {
-        $organization = Organization::find($id);
-
-        if (!$organization) {
-            return null;
-        }
-
-        $organization->update($data);
-
-        return $organization;
+        return $org->delete();
     }
 
-    public function deleteOrganization(string $id): bool
+    public function addMember(Organization $org, int $userId, string $role = 'member'): void
     {
-        $organization = Organization::find($id);
-
-        if (!$organization) {
-            return false;
-        }
-
-        return $organization->delete();
+        $org->users()->attach($userId, [
+            'role' => $role,
+            'joined_at' => now(),
+        ]);
     }
 
-    public function getMembers(string $id)
+    public function removeMember(Organization $org, int $userId): void
     {
-        $organization = $this->getOrganization($id);
-
-        return $organization ? $organization->members : null;
+        $org->users()->detach($userId);
     }
 
-    public function addMember(string $id, string $userId, string $role)
+    public function updateMemberRole(Organization $org, int $userId, string $role): void
     {
-        $organization = $this->getOrganization($id);
-        if ($organization) {
-            $organization->members()->attach($userId, ['role' => $role]);
-        }
-
-        return $organization;
+        $org->users()->updateExistingPivot($userId, ['role' => $role]);
     }
 
-    public function removeMember(string $id, string $userId)
+    public function getMembers(Organization $org)
     {
-        $organization = $this->getOrganization($id);
-        if ($organization) {
-            $organization->members()->detach($userId);
-        }
-
-        return $organization;
+        return $org->users()->withPivot('role', 'permissions', 'joined_at')->get();
     }
 
-    public function updateMemberRole(string $id, string $userId, string $role)
+    public function getTeams(Organization $org)
     {
-        $organization = $this->getOrganization($id);
-        if ($organization) {
-            $organization->members()->updateExistingPivot($userId, ['role' => $role]);
-        }
-
-        return $organization;
+        return $org->teams()->with('members')->get();
     }
 
-    // Mocked methods for now
-
-    public function getTeams(string $id)
+    public function createTeam(Organization $org, array $data): Team
     {
-        return [];
+        return $org->teams()->create($data);
     }
 
-    public function createTeam(string $id, array $data)
+    public function updateTeam(Team $team, array $data): Team
     {
-        return ['message' => 'Team created.'];
+        $team->update($data);
+        return $team->fresh();
     }
 
-    public function updateTeam(string $id, string $teamId, array $data)
+    public function deleteTeam(Team $team): bool
     {
-        return ['message' => 'Team updated.'];
+        return $team->delete();
     }
 
-    public function deleteTeam(string $id, string $teamId)
+    public function getSettings(Organization $org): array
     {
-        return ['message' => 'Team deleted.'];
+        return $org->settings ?? [];
     }
 
-    public function getSettings(string $id)
+    public function updateSettings(Organization $org, array $settings): Organization
     {
-        return [];
+        $org->update(['settings' => array_merge($org->settings ?? [], $settings)]);
+        return $org->fresh();
     }
 
-    public function updateSettings(string $id, array $data)
+    public function getUsage(Organization $org): array
     {
-        return ['message' => 'Settings updated.'];
+        return [
+            'workflows' => $org->workflows()->count(),
+            'executions' => $org->workflows()->withCount('executions')->get()->sum('executions_count'),
+            'members' => $org->users()->count(),
+            'teams' => $org->teams()->count(),
+            'credentials' => $org->credentials()->count(),
+            'storage_used' => 0, // TODO: Calculate actual storage
+        ];
     }
 
-    public function getUsage(string $id)
+    public function getBilling(Organization $org): array
     {
-        return [];
-    }
-
-    public function getBilling(string $id)
-    {
-        return [];
+        return [
+            'plan' => $org->plan,
+            'is_active' => $org->is_active,
+            'usage' => $this->getUsage($org),
+        ];
     }
 }

@@ -3,100 +3,126 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Organization\StoreRequest;
+use App\Http\Requests\Organization\UpdateRequest;
+use App\Http\Requests\Organization\MemberRequest;
+use App\Http\Requests\Organization\TeamRequest;
+use App\Models\Organization;
+use App\Models\Team;
 use App\Services\Organization\OrganizationService;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
-    protected $organizationService;
+    use ApiResponse;
 
-    public function __construct(OrganizationService $organizationService)
-    {
-        $this->organizationService = $organizationService;
-    }
+    public function __construct(private OrganizationService $service) {}
 
     public function index(Request $request)
     {
-        return $this->organizationService->getOrganizations();
+        $orgs = $this->service->getUserOrganizations($request->user());
+        return $this->success($orgs);
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        return $this->organizationService->createOrganization($request->all(), $request->user()->id);
+        $org = $this->service->create($request->validated(), $request->user());
+        return $this->success($org, 'Organization created', 201);
     }
 
-    public function show(Request $request, $id)
+    public function show(Organization $organization)
     {
-        return $this->organizationService->getOrganization($id);
+        return $this->success($organization->load('users'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, Organization $organization)
     {
-        return $this->organizationService->updateOrganization($id, $request->all());
+        $org = $this->service->update($organization, $request->validated());
+        return $this->success($org, 'Organization updated');
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Organization $organization)
     {
-        return $this->organizationService->deleteOrganization($id);
+        $this->service->delete($organization);
+        return $this->success(null, 'Organization deleted');
     }
 
-    public function getMembers(Request $request, $id)
+    public function getMembers(Organization $organization)
     {
-        return $this->organizationService->getMembers($id);
+        $members = $this->service->getMembers($organization);
+        return $this->success($members);
     }
 
-    public function addMember(Request $request, $id)
+    public function addMember(MemberRequest $request, Organization $organization)
     {
-        return $this->organizationService->addMember($id, $request->input('user_id'), $request->input('role'));
+        $this->service->addMember(
+            $organization,
+            $request->validated('user_id'),
+            $request->validated('role', 'member')
+        );
+        return $this->success(null, 'Member added');
     }
 
-    public function removeMember(Request $request, $id, $userId)
+    public function removeMember(Organization $organization, int $userId)
     {
-        return $this->organizationService->removeMember($id, $userId);
+        $this->service->removeMember($organization, $userId);
+        return $this->success(null, 'Member removed');
     }
 
-    public function updateMemberRole(Request $request, $id, $userId)
+    public function updateMemberRole(Request $request, Organization $organization, int $userId)
     {
-        return $this->organizationService->updateMemberRole($id, $userId, $request->input('role'));
+        $request->validate(['role' => 'required|string|in:owner,admin,member,viewer']);
+        $this->service->updateMemberRole($organization, $userId, $request->role);
+        return $this->success(null, 'Member role updated');
     }
 
-    public function getTeams(Request $request, $id)
+    public function getTeams(Organization $organization)
     {
-        return $this->organizationService->getTeams($id);
+        $teams = $this->service->getTeams($organization);
+        return $this->success($teams);
     }
 
-    public function createTeam(Request $request, $id)
+    public function createTeam(TeamRequest $request, Organization $organization)
     {
-        return $this->organizationService->createTeam($id, $request->all());
+        $team = $this->service->createTeam($organization, $request->validated());
+        return $this->success($team, 'Team created', 201);
     }
 
-    public function updateTeam(Request $request, $id, $teamId)
+    public function updateTeam(TeamRequest $request, Organization $organization, Team $team)
     {
-        return $this->organizationService->updateTeam($id, $teamId, $request->all());
+        $team = $this->service->updateTeam($team, $request->validated());
+        return $this->success($team, 'Team updated');
     }
 
-    public function deleteTeam(Request $request, $id, $teamId)
+    public function deleteTeam(Organization $organization, Team $team)
     {
-        return $this->organizationService->deleteTeam($id, $teamId);
+        $this->service->deleteTeam($team);
+        return $this->success(null, 'Team deleted');
     }
 
-    public function getSettings(Request $request, $id)
+    public function getSettings(Organization $organization)
     {
-        return $this->organizationService->getSettings($id);
+        $settings = $this->service->getSettings($organization);
+        return $this->success($settings);
     }
 
-    public function updateSettings(Request $request, $id)
+    public function updateSettings(Request $request, Organization $organization)
     {
-        return $this->organizationService->updateSettings($id, $request->all());
+        $request->validate(['settings' => 'required|array']);
+        $org = $this->service->updateSettings($organization, $request->settings);
+        return $this->success($org, 'Settings updated');
     }
 
-    public function getUsage(Request $request, $id)
+    public function getUsage(Organization $organization)
     {
-        return $this->organizationService->getUsage($id);
+        $usage = $this->service->getUsage($organization);
+        return $this->success($usage);
     }
 
-    public function getBilling(Request $request, $id)
+    public function getBilling(Organization $organization)
     {
-        return $this->organizationService->getBilling($id);
+        $billing = $this->service->getBilling($organization);
+        return $this->success($billing);
     }
 }

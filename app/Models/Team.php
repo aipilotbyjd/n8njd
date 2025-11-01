@@ -2,29 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 
 class Team extends Model
 {
-    use HasFactory;
+    protected $fillable = ['organization_id', 'name', 'description', 'slug', 'color', 'created_by'];
 
-    protected $fillable = [
-        'organization_id',
-        'name',
-        'description',
-        'slug',
-        'color',
-        'created_by',
-    ];
-
-    protected function casts(): array
+    protected static function boot()
     {
-        return [
-            'slug' => 'string',
-            'color' => 'string',
-        ];
+        parent::boot();
+        static::creating(fn($team) => $team->slug = $team->slug ?? Str::slug($team->name));
     }
 
     public function organization(): BelongsTo
@@ -37,13 +27,13 @@ class Team extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function scopeForOrganization($query, int $organizationId)
+    public function members(): BelongsToMany
     {
-        return $query->where('organization_id', $organizationId);
+        return $this->belongsToMany(User::class, 'team_user')->withTimestamps();
     }
 
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'id';
     }
 }
