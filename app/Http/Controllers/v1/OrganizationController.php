@@ -13,16 +13,7 @@ class OrganizationController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(private OrganizationService $service)
-    {
-        $this->middleware(function ($request, $next) {
-            $org = $request->route('organization');
-            if ($org && !$org->isAdmin($request->user()->id)) {
-                return $this->forbidden('You do not have permission to perform this action');
-            }
-            return $next($request);
-        })->except(['index', 'store', 'show']);
-    }
+    public function __construct(private OrganizationService $service) {}
 
     public function index(Request $request)
     {
@@ -45,13 +36,16 @@ class OrganizationController extends Controller
 
     public function update(UpdateRequest $request, Organization $organization)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         return $this->success($this->service->update($organization, $request->validated()));
     }
 
-    public function destroy(Organization $organization)
+    public function destroy(Request $request, Organization $organization)
     {
-        if (!$organization->isOwner(request()->user()->id)) {
-            return $this->forbidden('Only owners can delete the organization');
+        if (!$organization->isOwner($request->user()->id)) {
+            return $this->forbidden('Only owners can delete');
         }
         $this->service->delete($organization);
         return $this->success(null, 'Organization deleted');
@@ -64,18 +58,27 @@ class OrganizationController extends Controller
 
     public function addMember(MemberRequest $request, Organization $organization)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         $this->service->addMember($organization, $request->user_id, $request->role ?? 'member');
         return $this->success(null, 'Member added');
     }
 
-    public function removeMember(Organization $organization, int $userId)
+    public function removeMember(Request $request, Organization $organization, int $userId)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         $this->service->removeMember($organization, $userId);
         return $this->success(null, 'Member removed');
     }
 
     public function updateMemberRole(Request $request, Organization $organization, int $userId)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         $request->validate(['role' => 'required|in:owner,admin,member,viewer']);
         $this->service->updateMemberRole($organization, $userId, $request->role);
         return $this->success(null, 'Role updated');
@@ -88,22 +91,25 @@ class OrganizationController extends Controller
 
     public function createTeam(TeamRequest $request, Organization $organization)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         $team = $this->service->createTeam($organization, $request->validated(), $request->user());
         return $this->success($team, 'Team created', 201);
     }
 
     public function updateTeam(TeamRequest $request, Organization $organization, Team $team)
     {
-        if ($team->organization_id !== $organization->id) {
-            return $this->forbidden('Team does not belong to this organization');
+        if (!$organization->isAdmin($request->user()->id) || $team->organization_id !== $organization->id) {
+            return $this->forbidden('You do not have permission');
         }
         return $this->success($this->service->updateTeam($team, $request->validated()));
     }
 
-    public function deleteTeam(Organization $organization, Team $team)
+    public function deleteTeam(Request $request, Organization $organization, Team $team)
     {
-        if ($team->organization_id !== $organization->id) {
-            return $this->forbidden('Team does not belong to this organization');
+        if (!$organization->isAdmin($request->user()->id) || $team->organization_id !== $organization->id) {
+            return $this->forbidden('You do not have permission');
         }
         $this->service->deleteTeam($team);
         return $this->success(null, 'Team deleted');
@@ -116,6 +122,9 @@ class OrganizationController extends Controller
 
     public function updateSettings(Request $request, Organization $organization)
     {
+        if (!$organization->isAdmin($request->user()->id)) {
+            return $this->forbidden('You do not have permission');
+        }
         $request->validate(['settings' => 'required|array']);
         return $this->success($this->service->updateSettings($organization, $request->settings));
     }
