@@ -7,12 +7,16 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class OrganizationUser extends Pivot
 {
     protected $table = 'organization_user';
-
     protected $casts = ['permissions' => 'array', 'joined_at' => 'datetime'];
 
-    public function hasRole(string $role): bool
+    public function isOwner(): bool
     {
-        return $this->role === $role;
+        return $this->role === 'owner';
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, ['owner', 'admin']);
     }
 
     public function hasPermission(string $permission): bool

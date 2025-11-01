@@ -17,8 +17,8 @@ class OrganizationController extends Controller
     {
         $this->middleware(function ($request, $next) {
             $org = $request->route('organization');
-            if ($org && !$org->userIsOwnerOrAdmin($request->user()->id)) {
-                return response()->json(['message' => 'Unauthorized'], 403);
+            if ($org && !$org->isAdmin($request->user()->id)) {
+                return $this->forbidden('You do not have permission to perform this action');
             }
             return $next($request);
         })->except(['index', 'store', 'show']);
@@ -31,21 +31,28 @@ class OrganizationController extends Controller
 
     public function store(StoreRequest $request)
     {
-        return $this->success($this->service->create($request->validated(), $request->user()), 'Organization created', 201);
+        $org = $this->service->create($request->validated(), $request->user());
+        return $this->success($org, 'Organization created', 201);
     }
 
     public function show(Organization $organization)
     {
-        return $this->success($organization->load('users:id,name,email'));
+        if (!$organization->hasMember(request()->user()->id)) {
+            return $this->forbidden('You are not a member of this organization');
+        }
+        return $this->success($organization->loadCount('users', 'workflows', 'teams'));
     }
 
     public function update(UpdateRequest $request, Organization $organization)
     {
-        return $this->success($this->service->update($organization, $request->validated()), 'Organization updated');
+        return $this->success($this->service->update($organization, $request->validated()));
     }
 
     public function destroy(Organization $organization)
     {
+        if (!$organization->isOwner(request()->user()->id)) {
+            return $this->forbidden('Only owners can delete the organization');
+        }
         $this->service->delete($organization);
         return $this->success(null, 'Organization deleted');
     }
@@ -81,16 +88,23 @@ class OrganizationController extends Controller
 
     public function createTeam(TeamRequest $request, Organization $organization)
     {
-        return $this->success($this->service->createTeam($organization, $request->validated(), $request->user()), 'Team created', 201);
+        $team = $this->service->createTeam($organization, $request->validated(), $request->user());
+        return $this->success($team, 'Team created', 201);
     }
 
     public function updateTeam(TeamRequest $request, Organization $organization, Team $team)
     {
-        return $this->success($this->service->updateTeam($team, $request->validated()), 'Team updated');
+        if ($team->organization_id !== $organization->id) {
+            return $this->forbidden('Team does not belong to this organization');
+        }
+        return $this->success($this->service->updateTeam($team, $request->validated()));
     }
 
     public function deleteTeam(Organization $organization, Team $team)
     {
+        if ($team->organization_id !== $organization->id) {
+            return $this->forbidden('Team does not belong to this organization');
+        }
         $this->service->deleteTeam($team);
         return $this->success(null, 'Team deleted');
     }
@@ -103,7 +117,7 @@ class OrganizationController extends Controller
     public function updateSettings(Request $request, Organization $organization)
     {
         $request->validate(['settings' => 'required|array']);
-        return $this->success($this->service->updateSettings($organization, $request->settings), 'Settings updated');
+        return $this->success($this->service->updateSettings($organization, $request->settings));
     }
 
     public function getUsage(Organization $organization)

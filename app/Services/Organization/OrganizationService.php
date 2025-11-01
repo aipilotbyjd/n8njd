@@ -2,9 +2,7 @@
 
 namespace App\Services\Organization;
 
-use App\Models\Organization;
-use App\Models\Team;
-use App\Models\User;
+use App\Models\{Organization, Team, User};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -12,7 +10,10 @@ class OrganizationService
 {
     public function getUserOrganizations(User $user)
     {
-        return $user->organizations()->with('users:id,name,email')->get();
+        return $user->organizations()
+            ->select('organizations.*')
+            ->withCount('users', 'workflows', 'teams')
+            ->get();
     }
 
     public function create(array $data, User $user): Organization
@@ -20,38 +21,33 @@ class OrganizationService
         return DB::transaction(function () use ($data, $user) {
             $org = Organization::create($data);
             $org->users()->attach($user->id, ['role' => 'owner', 'joined_at' => now()]);
-            return $org->load('users:id,name,email');
+            return $org->loadCount('users', 'workflows', 'teams');
         });
     }
 
     public function update(Organization $org, array $data): Organization
     {
         $org->update($data);
-        return $org->fresh();
+        return $org->fresh()->loadCount('users', 'workflows', 'teams');
     }
 
     public function delete(Organization $org): void
     {
-        DB::transaction(function () use ($org) {
-            $org->workflows()->delete();
-            $org->teams()->delete();
-            $org->credentials()->delete();
-            $org->users()->detach();
-            $org->delete();
-        });
+        DB::transaction(fn() => $org->delete());
     }
 
     public function getMembers(Organization $org)
     {
         return $org->users()
-            ->select('users.id', 'users.name', 'users.email', 'users.created_at')
+            ->select('users.id', 'users.name', 'users.email')
             ->withPivot('role', 'permissions', 'joined_at')
+            ->orderByPivot('joined_at', 'desc')
             ->get();
     }
 
     public function addMember(Organization $org, int $userId, string $role): void
     {
-        if ($org->users()->where('user_id', $userId)->exists()) {
+        if ($org->hasMember($userId)) {
             throw ValidationException::withMessages(['user_id' => 'User already in organization']);
         }
 
@@ -60,8 +56,10 @@ class OrganizationService
 
     public function removeMember(Organization $org, int $userId): void
     {
-        if ($org->users()->wherePivot('role', 'owner')->count() === 1 && 
-            $org->users()->wherePivot('user_id', $userId)->wherePivot('role', 'owner')->exists()) {
+        $ownerCount = $org->users()->wherePivot('role', 'owner')->count();
+        $isOwner = $org->users()->wherePivot('user_id', $userId)->wherePivot('role', 'owner')->exists();
+
+        if ($ownerCount === 1 && $isOwner) {
             throw ValidationException::withMessages(['user_id' => 'Cannot remove last owner']);
         }
 
@@ -70,8 +68,8 @@ class OrganizationService
 
     public function updateMemberRole(Organization $org, int $userId, string $role): void
     {
-        if ($role === 'owner' && $org->users()->wherePivot('role', 'owner')->count() === 1) {
-            throw ValidationException::withMessages(['role' => 'Cannot change last owner role']);
+        if (!$org->hasMember($userId)) {
+            throw ValidationException::withMessages(['user_id' => 'User not in organization']);
         }
 
         $org->users()->updateExistingPivot($userId, ['role' => $role]);
@@ -79,7 +77,11 @@ class OrganizationService
 
     public function getTeams(Organization $org)
     {
-        return $org->teams()->with('members:id,name,email')->get();
+        return $org->teams()
+            ->withCount('members')
+            ->with('creator:id,name')
+            ->latest()
+            ->get();
     }
 
     public function createTeam(Organization $org, array $data, User $user): Team
@@ -107,8 +109,10 @@ class OrganizationService
     public function getUsage(Organization $org): array
     {
         return [
-            'workflows' => $org->workflows()->count(),
-            'active_workflows' => $org->workflows()->where('is_active', true)->count(),
+            'workflows' => [
+                'total' => $org->workflows()->count(),
+                'active' => $org->workflows()->where('is_active', true)->count(),
+            ],
             'executions' => DB::table('executions')
                 ->whereIn('workflow_id', $org->workflows()->pluck('id'))
                 ->count(),

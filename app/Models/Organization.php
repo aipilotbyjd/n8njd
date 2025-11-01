@@ -11,6 +11,7 @@ class Organization extends Model
 {
     protected $fillable = ['name', 'slug', 'description', 'plan', 'is_active', 'settings'];
     protected $casts = ['is_active' => 'boolean', 'settings' => 'array'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     protected static function boot()
     {
@@ -41,14 +42,19 @@ class Organization extends Model
         return $this->hasMany(Credential::class);
     }
 
-    public function userHasRole(int $userId, string $role): bool
+    public function isOwner(int $userId): bool
     {
-        return $this->users()->wherePivot('user_id', $userId)->wherePivot('role', $role)->exists();
+        return $this->users()->wherePivot('user_id', $userId)->wherePivot('role', 'owner')->exists();
     }
 
-    public function userIsOwnerOrAdmin(int $userId): bool
+    public function isAdmin(int $userId): bool
     {
         return $this->users()->wherePivot('user_id', $userId)->whereIn('role', ['owner', 'admin'])->exists();
+    }
+
+    public function hasMember(int $userId): bool
+    {
+        return $this->users()->where('user_id', $userId)->exists();
     }
 
     public function getRouteKeyName(): string

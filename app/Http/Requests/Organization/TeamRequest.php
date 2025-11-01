@@ -15,7 +15,8 @@ class TeamRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:1000',
+            'color' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ];
     }
 }

@@ -15,8 +15,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:organizations,slug',
-            'description' => 'nullable|string',
+            'slug' => 'nullable|string|max:255|unique:organizations,slug|alpha_dash',
+            'description' => 'nullable|string|max:1000',
             'plan' => 'nullable|in:free,pro,enterprise',
         ];
     }
