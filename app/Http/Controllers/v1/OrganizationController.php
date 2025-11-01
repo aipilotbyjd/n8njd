@@ -3,12 +3,8 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Organization\StoreRequest;
-use App\Http\Requests\Organization\UpdateRequest;
-use App\Http\Requests\Organization\MemberRequest;
-use App\Http\Requests\Organization\TeamRequest;
-use App\Models\Organization;
-use App\Models\Team;
+use App\Http\Requests\Organization\{StoreRequest, UpdateRequest, MemberRequest, TeamRequest};
+use App\Models\{Organization, Team};
 use App\Services\Organization\OrganizationService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -17,29 +13,35 @@ class OrganizationController extends Controller
 {
     use ApiResponse;
 
-    public function __construct(private OrganizationService $service) {}
+    public function __construct(private OrganizationService $service)
+    {
+        $this->middleware(function ($request, $next) {
+            $org = $request->route('organization');
+            if ($org && !$org->userIsOwnerOrAdmin($request->user()->id)) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            return $next($request);
+        })->except(['index', 'store', 'show']);
+    }
 
     public function index(Request $request)
     {
-        $orgs = $this->service->getUserOrganizations($request->user());
-        return $this->success($orgs);
+        return $this->success($this->service->getUserOrganizations($request->user()));
     }
 
     public function store(StoreRequest $request)
     {
-        $org = $this->service->create($request->validated(), $request->user());
-        return $this->success($org, 'Organization created', 201);
+        return $this->success($this->service->create($request->validated(), $request->user()), 'Organization created', 201);
     }
 
     public function show(Organization $organization)
     {
-        return $this->success($organization->load('users'));
+        return $this->success($organization->load('users:id,name,email'));
     }
 
     public function update(UpdateRequest $request, Organization $organization)
     {
-        $org = $this->service->update($organization, $request->validated());
-        return $this->success($org, 'Organization updated');
+        return $this->success($this->service->update($organization, $request->validated()), 'Organization updated');
     }
 
     public function destroy(Organization $organization)
@@ -50,17 +52,12 @@ class OrganizationController extends Controller
 
     public function getMembers(Organization $organization)
     {
-        $members = $this->service->getMembers($organization);
-        return $this->success($members);
+        return $this->success($this->service->getMembers($organization));
     }
 
     public function addMember(MemberRequest $request, Organization $organization)
     {
-        $this->service->addMember(
-            $organization,
-            $request->validated('user_id'),
-            $request->validated('role', 'member')
-        );
+        $this->service->addMember($organization, $request->user_id, $request->role ?? 'member');
         return $this->success(null, 'Member added');
     }
 
@@ -72,27 +69,24 @@ class OrganizationController extends Controller
 
     public function updateMemberRole(Request $request, Organization $organization, int $userId)
     {
-        $request->validate(['role' => 'required|string|in:owner,admin,member,viewer']);
+        $request->validate(['role' => 'required|in:owner,admin,member,viewer']);
         $this->service->updateMemberRole($organization, $userId, $request->role);
-        return $this->success(null, 'Member role updated');
+        return $this->success(null, 'Role updated');
     }
 
     public function getTeams(Organization $organization)
     {
-        $teams = $this->service->getTeams($organization);
-        return $this->success($teams);
+        return $this->success($this->service->getTeams($organization));
     }
 
     public function createTeam(TeamRequest $request, Organization $organization)
     {
-        $team = $this->service->createTeam($organization, $request->validated());
-        return $this->success($team, 'Team created', 201);
+        return $this->success($this->service->createTeam($organization, $request->validated(), $request->user()), 'Team created', 201);
     }
 
     public function updateTeam(TeamRequest $request, Organization $organization, Team $team)
     {
-        $team = $this->service->updateTeam($team, $request->validated());
-        return $this->success($team, 'Team updated');
+        return $this->success($this->service->updateTeam($team, $request->validated()), 'Team updated');
     }
 
     public function deleteTeam(Organization $organization, Team $team)
@@ -103,26 +97,26 @@ class OrganizationController extends Controller
 
     public function getSettings(Organization $organization)
     {
-        $settings = $this->service->getSettings($organization);
-        return $this->success($settings);
+        return $this->success($organization->settings ?? []);
     }
 
     public function updateSettings(Request $request, Organization $organization)
     {
         $request->validate(['settings' => 'required|array']);
-        $org = $this->service->updateSettings($organization, $request->settings);
-        return $this->success($org, 'Settings updated');
+        return $this->success($this->service->updateSettings($organization, $request->settings), 'Settings updated');
     }
 
     public function getUsage(Organization $organization)
     {
-        $usage = $this->service->getUsage($organization);
-        return $this->success($usage);
+        return $this->success($this->service->getUsage($organization));
     }
 
     public function getBilling(Organization $organization)
     {
-        $billing = $this->service->getBilling($organization);
-        return $this->success($billing);
+        return $this->success([
+            'plan' => $organization->plan,
+            'is_active' => $organization->is_active,
+            'usage' => $this->service->getUsage($organization),
+        ]);
     }
 }

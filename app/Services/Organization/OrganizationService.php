@@ -6,23 +6,21 @@ use App\Models\Organization;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class OrganizationService
 {
     public function getUserOrganizations(User $user)
     {
-        return $user->organizations()->with('users')->get();
+        return $user->organizations()->with('users:id,name,email')->get();
     }
 
     public function create(array $data, User $user): Organization
     {
         return DB::transaction(function () use ($data, $user) {
             $org = Organization::create($data);
-            $org->users()->attach($user->id, [
-                'role' => 'owner',
-                'joined_at' => now(),
-            ]);
-            return $org->load('users');
+            $org->users()->attach($user->id, ['role' => 'owner', 'joined_at' => now()]);
+            return $org->load('users:id,name,email');
         });
     }
 
@@ -32,42 +30,61 @@ class OrganizationService
         return $org->fresh();
     }
 
-    public function delete(Organization $org): bool
+    public function delete(Organization $org): void
     {
-        return $org->delete();
+        DB::transaction(function () use ($org) {
+            $org->workflows()->delete();
+            $org->teams()->delete();
+            $org->credentials()->delete();
+            $org->users()->detach();
+            $org->delete();
+        });
     }
 
-    public function addMember(Organization $org, int $userId, string $role = 'member'): void
+    public function getMembers(Organization $org)
     {
-        $org->users()->attach($userId, [
-            'role' => $role,
-            'joined_at' => now(),
-        ]);
+        return $org->users()
+            ->select('users.id', 'users.name', 'users.email', 'users.created_at')
+            ->withPivot('role', 'permissions', 'joined_at')
+            ->get();
+    }
+
+    public function addMember(Organization $org, int $userId, string $role): void
+    {
+        if ($org->users()->where('user_id', $userId)->exists()) {
+            throw ValidationException::withMessages(['user_id' => 'User already in organization']);
+        }
+
+        $org->users()->attach($userId, ['role' => $role, 'joined_at' => now()]);
     }
 
     public function removeMember(Organization $org, int $userId): void
     {
+        if ($org->users()->wherePivot('role', 'owner')->count() === 1 && 
+            $org->users()->wherePivot('user_id', $userId)->wherePivot('role', 'owner')->exists()) {
+            throw ValidationException::withMessages(['user_id' => 'Cannot remove last owner']);
+        }
+
         $org->users()->detach($userId);
     }
 
     public function updateMemberRole(Organization $org, int $userId, string $role): void
     {
-        $org->users()->updateExistingPivot($userId, ['role' => $role]);
-    }
+        if ($role === 'owner' && $org->users()->wherePivot('role', 'owner')->count() === 1) {
+            throw ValidationException::withMessages(['role' => 'Cannot change last owner role']);
+        }
 
-    public function getMembers(Organization $org)
-    {
-        return $org->users()->withPivot('role', 'permissions', 'joined_at')->get();
+        $org->users()->updateExistingPivot($userId, ['role' => $role]);
     }
 
     public function getTeams(Organization $org)
     {
-        return $org->teams()->with('members')->get();
+        return $org->teams()->with('members:id,name,email')->get();
     }
 
-    public function createTeam(Organization $org, array $data): Team
+    public function createTeam(Organization $org, array $data, User $user): Team
     {
-        return $org->teams()->create($data);
+        return $org->teams()->create(array_merge($data, ['created_by' => $user->id]));
     }
 
     public function updateTeam(Team $team, array $data): Team
@@ -76,14 +93,9 @@ class OrganizationService
         return $team->fresh();
     }
 
-    public function deleteTeam(Team $team): bool
+    public function deleteTeam(Team $team): void
     {
-        return $team->delete();
-    }
-
-    public function getSettings(Organization $org): array
-    {
-        return $org->settings ?? [];
+        $team->delete();
     }
 
     public function updateSettings(Organization $org, array $settings): Organization
@@ -96,20 +108,13 @@ class OrganizationService
     {
         return [
             'workflows' => $org->workflows()->count(),
-            'executions' => $org->workflows()->withCount('executions')->get()->sum('executions_count'),
+            'active_workflows' => $org->workflows()->where('is_active', true)->count(),
+            'executions' => DB::table('executions')
+                ->whereIn('workflow_id', $org->workflows()->pluck('id'))
+                ->count(),
             'members' => $org->users()->count(),
             'teams' => $org->teams()->count(),
             'credentials' => $org->credentials()->count(),
-            'storage_used' => 0, // TODO: Calculate actual storage
-        ];
-    }
-
-    public function getBilling(Organization $org): array
-    {
-        return [
-            'plan' => $org->plan,
-            'is_active' => $org->is_active,
-            'usage' => $this->getUsage($org),
         ];
     }
 }
