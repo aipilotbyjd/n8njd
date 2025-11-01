@@ -15,7 +15,6 @@ use App\Http\Controllers\v1\TemplateController;
 use App\Http\Controllers\v1\VariableController;
 use App\Http\Controllers\v1\WebhookController;
 use App\Http\Controllers\v1\WorkflowController;
-use App\Http\Middleware\EnsureOrganizationContext;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,8 +58,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // 2. WORKFLOW SERVICE API
-    Route::apiResource('workflows', WorkflowController::class)->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::prefix('workflows')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(WorkflowController::class)->group(function () {
+    Route::apiResource('workflows', WorkflowController::class)->middleware(['auth:api']);
+    Route::prefix('workflows')->middleware(['auth:api'])->controller(WorkflowController::class)->group(function () {
         Route::post('{id}/duplicate', 'duplicate');
         Route::patch('{id}/activate', 'activate');
         Route::patch('{id}/deactivate', 'deactivate');
@@ -94,7 +93,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 3. NODE REGISTRY SERVICE API
-    Route::prefix('nodes')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(NodeController::class)->group(function () {
+    Route::prefix('nodes')->middleware(['auth:api'])->controller(NodeController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('categories', 'getCategories');
         Route::get('tags', 'getTags');
@@ -114,7 +113,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 4. EXECUTION SERVICE API
-    Route::prefix('executions')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(ExecutionController::class)->group(function () {
+    Route::prefix('executions')->middleware(['auth:api'])->controller(ExecutionController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('{id}', 'show');
         Route::delete('{id}', 'destroy');
@@ -142,12 +141,12 @@ Route::prefix('v1')->group(function () {
         Route::post('queue/clear', 'clearQueue');
         Route::post('queue/priority/{id}', 'setQueuePriority');
     });
-    Route::post('workflows/{id}/execute', [ExecutionController::class, 'executeWorkflow'])->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::post('workflows/{id}/test-execute', [ExecutionController::class, 'testExecuteWorkflow'])->middleware(['auth:api', EnsureOrganizationContext::class]);
+    Route::post('workflows/{id}/execute', [ExecutionController::class, 'executeWorkflow'])->middleware(['auth:api']);
+    Route::post('workflows/{id}/test-execute', [ExecutionController::class, 'testExecuteWorkflow'])->middleware(['auth:api']);
 
     // 5. CREDENTIALS SERVICE API
-    Route::apiResource('credentials', CredentialController::class)->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::prefix('credentials')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(CredentialController::class)->group(function () {
+    Route::apiResource('credentials', CredentialController::class)->middleware(['auth:api']);
+    Route::prefix('credentials')->middleware(['auth:api'])->controller(CredentialController::class)->group(function () {
         Route::get('types', 'getTypes');
         Route::get('types/{type}/schema', 'getTypeSchema');
         Route::post('{id}/test', 'test');
@@ -163,8 +162,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // 6. WEBHOOK SERVICE API
-    Route::apiResource('webhooks', WebhookController::class)->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::prefix('webhooks')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(WebhookController::class)->group(function () {
+    Route::apiResource('webhooks', WebhookController::class)->middleware(['auth:api']);
+    Route::prefix('webhooks')->middleware(['auth:api'])->controller(WebhookController::class)->group(function () {
         Route::post('{id}/test', 'test');
         Route::get('{id}/test-url', 'getTestUrl');
         Route::get('{id}/logs', 'getLogs');
@@ -174,7 +173,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 7. TEMPLATE/MARKETPLACE SERVICE API
-    Route::prefix('templates')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(TemplateController::class)->group(function () {
+    Route::prefix('templates')->middleware(['auth:api'])->controller(TemplateController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('featured', 'getFeatured');
         Route::get('trending', 'getTrending');
@@ -197,7 +196,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 8. ANALYTICS SERVICE API
-    Route::prefix('analytics')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(AnalyticsController::class)->group(function () {
+    Route::prefix('analytics')->middleware(['auth:api'])->controller(AnalyticsController::class)->group(function () {
         Route::get('dashboard', 'getDashboard');
         Route::get('overview', 'getOverview');
         Route::get('workflows/performance', 'getWorkflowPerformance');
@@ -222,7 +221,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 9. NOTIFICATION SERVICE API
-    Route::prefix('notifications')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(NotificationController::class)->group(function () {
+    Route::prefix('notifications')->middleware(['auth:api'])->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index');
         Route::put('{id}/read', 'markAsRead');
         Route::post('mark-all-read', 'markAllAsRead');
@@ -235,7 +234,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 10. STORAGE SERVICE API
-    Route::prefix('storage')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(StorageController::class)->group(function () {
+    Route::prefix('storage')->middleware(['auth:api'])->controller(StorageController::class)->group(function () {
         Route::post('upload', 'upload');
         Route::post('upload/multipart/init', 'initMultipartUpload');
         Route::post('upload/multipart/{id}/part', 'uploadPart');
@@ -265,7 +264,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 12. AI/ML SERVICE API
-    Route::prefix('ai')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(AiController::class)->group(function () {
+    Route::prefix('ai')->middleware(['auth:api'])->controller(AiController::class)->group(function () {
         Route::post('suggest-nodes', 'suggestNodes');
         Route::post('suggest-connections', 'suggestConnections');
         Route::post('optimize-workflow', 'optimizeWorkflow');
@@ -277,7 +276,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 13. ADMIN SERVICE API
-    Route::prefix('admin')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(AdminController::class)->group(function () {
+    Route::prefix('admin')->middleware(['auth:api'])->controller(AdminController::class)->group(function () {
         Route::get('system/health', 'getSystemHealth');
         Route::get('system/metrics', 'getSystemMetrics');
         Route::get('system/status', 'getSystemStatus');
@@ -303,15 +302,15 @@ Route::prefix('v1')->group(function () {
     });
 
     // 14. VARIABLES & ENVIRONMENT SERVICE
-    Route::apiResource('variables', VariableController::class)->middleware(['auth:api', EnsureOrganizationContext::class]);
-    Route::prefix('environments')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(VariableController::class)->group(function () {
+    Route::apiResource('variables', VariableController::class)->middleware(['auth:api']);
+    Route::prefix('environments')->middleware(['auth:api'])->controller(VariableController::class)->group(function () {
         Route::get('/', 'getEnvironments');
         Route::post('/', 'createEnvironment');
         Route::put('{id}', 'updateEnvironment');
         Route::delete('{id}', 'deleteEnvironment');
         Route::post('{id}/activate', 'activateEnvironment');
     });
-    Route::prefix('secrets')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(VariableController::class)->group(function () {
+    Route::prefix('secrets')->middleware(['auth:api'])->controller(VariableController::class)->group(function () {
         Route::get('/', 'getSecrets');
         Route::post('/', 'createSecret');
         Route::get('{id}', 'getSecret');
@@ -319,7 +318,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 15. REAL-TIME COLLABORATION SERVICE
-    Route::prefix('workflows/{id}')->middleware(['auth:api', EnsureOrganizationContext::class])->controller(CollaborationController::class)->group(function () {
+    Route::prefix('workflows/{id}')->middleware(['auth:api'])->controller(CollaborationController::class)->group(function () {
         Route::get('presence', 'getPresence');
         Route::post('presence/join', 'joinPresence');
         Route::post('presence/leave', 'leavePresence');
