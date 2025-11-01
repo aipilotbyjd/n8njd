@@ -10,13 +10,13 @@ class CredentialResolver
 {
     public static function resolve(?string $credentialId): ?array
     {
-        if (! $credentialId) {
+        if (!$credentialId) {
             return null;
         }
 
         $credential = Credential::find($credentialId);
 
-        if (! $credential) {
+        if (!$credential) {
             Log::warning('Credential not found', ['credential_id' => $credentialId]);
 
             return null;
@@ -40,7 +40,7 @@ class CredentialResolver
     {
         $credentials = self::resolve($credentialId);
 
-        if (! $credentials) {
+        if (!$credentials) {
             return [
                 'headers' => [],
                 'auth' => null,
@@ -62,7 +62,7 @@ class CredentialResolver
             case 'bearer':
                 return [
                     'headers' => [
-                        'Authorization' => 'Bearer '.($credentials['token'] ?? ''),
+                        'Authorization' => 'Bearer ' . ($credentials['token'] ?? ''),
                     ],
                     'auth' => null,
                 ];
@@ -80,7 +80,7 @@ class CredentialResolver
             case 'oauth2':
                 return [
                     'headers' => [
-                        'Authorization' => 'Bearer '.($credentials['access_token'] ?? ''),
+                        'Authorization' => 'Bearer ' . ($credentials['access_token'] ?? ''),
                     ],
                     'auth' => null,
                 ];
@@ -97,7 +97,7 @@ class CredentialResolver
     {
         $credentials = self::resolve($credentialId);
 
-        if (! $credentials) {
+        if (!$credentials) {
             return [
                 'from' => config('mail.from.address'),
                 'from_name' => config('mail.from.name'),

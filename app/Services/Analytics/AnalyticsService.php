@@ -118,7 +118,7 @@ class AnalyticsService
     {
         $workflow = Workflow::find($workflowId);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -149,7 +149,7 @@ class AnalyticsService
 
         $timeline = [];
         foreach ($executions as $execution) {
-            if (! isset($timeline[$execution->date])) {
+            if (!isset($timeline[$execution->date])) {
                 $timeline[$execution->date] = [
                     'date' => $execution->date,
                     'success' => 0,

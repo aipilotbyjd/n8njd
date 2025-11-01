@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Services\Storage\StorageService;
@@ -17,7 +17,7 @@ class StorageController extends Controller
 
     public function upload(Request $request)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id;
+        $path = $request->user()->org_id . '/' . $request->user()->id;
         $file = $request->file('file');
 
         return $this->storageService->upload($path, $file);
@@ -25,14 +25,14 @@ class StorageController extends Controller
 
     public function initMultipartUpload(Request $request)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id;
+        $path = $request->user()->org_id . '/' . $request->user()->id;
 
         return $this->storageService->initMultipartUpload($path);
     }
 
     public function uploadPart(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id;
+        $path = $request->user()->org_id . '/' . $request->user()->id;
         $file = $request->file('file');
 
         return $this->storageService->uploadPart($path, $id, $file);
@@ -40,42 +40,42 @@ class StorageController extends Controller
 
     public function completeMultipartUpload(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id;
+        $path = $request->user()->org_id . '/' . $request->user()->id;
 
         return $this->storageService->completeMultipartUpload($path, $request->input('parts'));
     }
 
     public function getFiles(Request $request)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id;
+        $path = $request->user()->org_id . '/' . $request->user()->id;
 
         return $this->storageService->getFiles($path);
     }
 
     public function getFile(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id.'/'.$id;
+        $path = $request->user()->org_id . '/' . $request->user()->id . '/' . $id;
 
         return $this->storageService->getFile($path);
     }
 
     public function deleteFile(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id.'/'.$id;
+        $path = $request->user()->org_id . '/' . $request->user()->id . '/' . $id;
 
         return $this->storageService->deleteFile($path);
     }
 
     public function downloadFile(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id.'/'.$id;
+        $path = $request->user()->org_id . '/' . $request->user()->id . '/' . $id;
 
         return $this->storageService->downloadFile($path);
     }
 
     public function shareFile(Request $request, $id)
     {
-        $path = $request->user()->org_id.'/'.$request->user()->id.'/'.$id;
+        $path = $request->user()->org_id . '/' . $request->user()->id . '/' . $id;
 
         return $this->storageService->shareFile($path, $request->input('user_id'), $request->user()->id, $request->input('permissions'));
     }

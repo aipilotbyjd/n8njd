@@ -4,7 +4,6 @@ namespace App\Services\Execution;
 
 use App\Jobs\ExecuteWorkflowJob;
 use App\Models\ExecutionData;
-use App\Models\Node;
 use App\Models\NodeExecution;
 use App\Models\Workflow;
 use App\Models\WorkflowExecution;
@@ -29,7 +28,7 @@ class ExecutionService
     {
         $execution = WorkflowExecution::find($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return false;
         }
 
@@ -50,7 +49,7 @@ class ExecutionService
     {
         $workflow = Workflow::find($workflowId);
 
-        if (! $workflow) {
+        if (!$workflow) {
             Log::error('Workflow not found', ['workflow_id' => $workflowId]);
             throw new \Exception("Workflow not found: {$workflowId}");
         }
@@ -90,7 +89,7 @@ class ExecutionService
 
         $startNode = $nodes->firstWhere('type', 'start');
 
-        if (! $startNode) {
+        if (!$startNode) {
             Log::error('Start node not found in workflow', ['workflow_id' => $workflowId]);
             $workflowExecution->status = 'error';
             $workflowExecution->error_message = 'Start node not found in workflow';
@@ -132,8 +131,7 @@ class ExecutionService
 
     private function executeNode(string $nodeId, array $inputData, WorkflowExecution $workflowExecution, $nodes, $connections, Graph $graph)
     {
-        $currentNode = $nodes->firstWhere('id', $nodeId);
-        $nodeModel = new Node($currentNode);
+        $nodeModel = $nodes->firstWhere('id', $nodeId);
 
         if ($nodeModel->type === 'wait') {
             $workflowExecution->status = 'waiting';
@@ -158,7 +156,7 @@ class ExecutionService
                 'node_type' => $nodeModel->type,
             ]);
 
-            if (! empty($inputData)) {
+            if (!empty($inputData)) {
                 $inputDataRecord = ExecutionData::create([
                     'id' => Str::uuid(),
                     'data' => $inputData,
@@ -169,7 +167,7 @@ class ExecutionService
             $executor = NodeExecutorFactory::make($nodeModel, $workflowExecution);
             $outputData = $executor->execute($inputData);
 
-            if (! empty($outputData)) {
+            if (!empty($outputData)) {
                 $outputDataRecord = ExecutionData::create([
                     'id' => Str::uuid(),
                     'data' => $outputData,
@@ -245,7 +243,7 @@ class ExecutionService
     {
         $execution = $this->getExecution($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return ['status' => 'error', 'message' => 'Execution not found.'];
         }
 
@@ -263,7 +261,7 @@ class ExecutionService
     {
         $execution = $this->getExecution($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return ['status' => 'error', 'message' => 'Execution not found.'];
         }
 
@@ -286,7 +284,7 @@ class ExecutionService
     {
         $execution = $this->getExecution($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return ['status' => 'error', 'message' => 'Execution not found.'];
         }
 
@@ -331,7 +329,7 @@ class ExecutionService
     {
         $execution = $this->getExecution($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return null;
         }
 
@@ -342,7 +340,7 @@ class ExecutionService
     {
         $nodes = $this->getNodes($id);
 
-        if (! $nodes) {
+        if (!$nodes) {
             return null;
         }
 
@@ -411,7 +409,7 @@ class ExecutionService
     {
         $execution = $this->getExecution($id);
 
-        if (! $execution) {
+        if (!$execution) {
             return ['status' => 'error', 'message' => 'Execution not found.'];
         }
 
@@ -487,7 +485,7 @@ class ExecutionService
     public function getQueueStatus()
     {
         $connection = config('queue.default');
-        $queue = config('queue.connections.'.$connection.'.queue');
+        $queue = config('queue.connections.' . $connection . '.queue');
 
         return [
             'connection' => $connection,

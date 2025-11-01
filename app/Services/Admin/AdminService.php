@@ -27,7 +27,7 @@ class AdminService
     {
         $user = User::find($id);
 
-        if (! $user) {
+        if (!$user) {
             return null;
         }
 
@@ -40,7 +40,7 @@ class AdminService
     {
         $user = User::find($id);
 
-        if (! $user) {
+        if (!$user) {
             return false;
         }
 
@@ -51,7 +51,7 @@ class AdminService
     {
         $user = User::find($id);
 
-        if (! $user) {
+        if (!$user) {
             return null;
         }
 
@@ -65,7 +65,7 @@ class AdminService
     {
         $user = User::find($id);
 
-        if (! $user) {
+        if (!$user) {
             return null;
         }
 
@@ -90,7 +90,7 @@ class AdminService
     {
         $workflow = Workflow::find($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return false;
         }
 

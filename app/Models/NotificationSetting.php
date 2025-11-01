@@ -74,7 +74,7 @@ class NotificationSetting extends Model
 
     public function removeChannel(int $channelId): void
     {
-        $channels = array_filter($this->channels ?? [], fn($id) => $id !== $channelId);
+        $channels = array_filter($this->channels ?? [], fn ($id) => $id !== $channelId);
         $this->update(['channels' => array_values($channels)]);
     }
 }

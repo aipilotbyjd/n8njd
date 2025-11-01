@@ -28,12 +28,12 @@ class AiService
 
     public function explainError(string $errorMessage)
     {
-        return ['explanation' => 'This is a mocked explanation for the error: '.$errorMessage];
+        return ['explanation' => 'This is a mocked explanation for the error: ' . $errorMessage];
     }
 
     public function chat(string $message)
     {
-        return ['reply' => 'This is a mocked reply to your message: '.$message];
+        return ['reply' => 'This is a mocked reply to your message: ' . $message];
     }
 
     public function generateExpression(string $prompt)

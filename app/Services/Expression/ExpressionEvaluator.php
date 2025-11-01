@@ -17,7 +17,7 @@ class ExpressionEvaluator
             $value = data_get($context, $matches[1]);
 
             if (is_string($value)) {
-                return "'".addslashes($value)."'";
+                return "'" . addslashes($value) . "'";
             } elseif (is_bool($value)) {
                 return $value ? 'true' : 'false';
             } elseif (is_null($value)) {
@@ -49,7 +49,7 @@ class ExpressionEvaluator
         }
 
         if (preg_match('/^!\s*(.+)$/', $expression, $matches)) {
-            return ! self::evaluateExpression($matches[1]);
+            return !self::evaluateExpression($matches[1]);
         }
 
         return self::parseValue($expression) == true;

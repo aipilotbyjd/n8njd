@@ -15,7 +15,7 @@ class Graph
 
     public function addEdge(string $from, string $to)
     {
-        if (! isset($this->edges[$from])) {
+        if (!isset($this->edges[$from])) {
             $this->edges[$from] = [];
         }
         $this->edges[$from][] = $to;
@@ -38,7 +38,7 @@ class Graph
         }
 
         $sorted = [];
-        while (! $queue->isEmpty()) {
+        while (!$queue->isEmpty()) {
             $nodeId = $queue->dequeue();
             $sorted[] = $nodeId;
 

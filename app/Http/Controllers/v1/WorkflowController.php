@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\StoreWorkflowRequest;
@@ -54,7 +54,7 @@ class WorkflowController extends Controller
     {
         $workflow = $this->workflowService->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -67,13 +67,13 @@ class WorkflowController extends Controller
     {
         $workflow = $this->workflowService->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return $this->notFound('Workflow not found.');
         }
 
         $version = $workflow->versions()->find($versionId);
 
-        if (! $version) {
+        if (!$version) {
             return $this->notFound('Version not found.');
         }
 
@@ -84,7 +84,7 @@ class WorkflowController extends Controller
     {
         $newWorkflow = $this->workflowService->duplicateWorkflow($id);
 
-        if (! $newWorkflow) {
+        if (!$newWorkflow) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -95,7 +95,7 @@ class WorkflowController extends Controller
     {
         $workflow = $this->workflowService->activateWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -106,7 +106,7 @@ class WorkflowController extends Controller
     {
         $workflow = $this->workflowService->deactivateWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -117,7 +117,7 @@ class WorkflowController extends Controller
     {
         $newVersion = $this->workflowService->createWorkflowVersion($id, $request->validated());
 
-        if (! $newVersion) {
+        if (!$newVersion) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -139,7 +139,7 @@ class WorkflowController extends Controller
     {
         $workflowData = $this->workflowService->exportWorkflow($id);
 
-        if (! $workflowData) {
+        if (!$workflowData) {
             return $this->notFound('Workflow not found.');
         }
 
@@ -177,7 +177,7 @@ class WorkflowController extends Controller
     {
         $workflow = $this->workflowService->restoreVersion($id, $versionId);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return $this->notFound('Workflow or Version not found.');
         }
 
@@ -188,7 +188,7 @@ class WorkflowController extends Controller
     {
         $comparison = $this->workflowService->compareVersions($id, $v1, $v2);
 
-        if (! $comparison) {
+        if (!$comparison) {
             return $this->notFound('Workflow or one of the versions not found.');
         }
 
@@ -242,7 +242,7 @@ class WorkflowController extends Controller
     {
         $comment = $this->workflowService->updateWorkflowComment($commentId, $request->input('content'));
 
-        if (! $comment) {
+        if (!$comment) {
             return $this->notFound('Comment not found.');
         }
 
@@ -251,7 +251,7 @@ class WorkflowController extends Controller
 
     public function deleteComment(string $id, string $commentId)
     {
-        if (! $this->workflowService->deleteWorkflowComment($commentId)) {
+        if (!$this->workflowService->deleteWorkflowComment($commentId)) {
             return $this->notFound('Comment not found.');
         }
 

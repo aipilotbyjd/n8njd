@@ -32,7 +32,7 @@ class HttpRequestNodeExecutor extends NodeExecutor
         Log::debug('HTTP Request', [
             'url' => $url,
             'method' => $method,
-            'has_credential' => ! empty($credentialId),
+            'has_credential' => !empty($credentialId),
         ]);
 
         $credentials = CredentialResolver::resolveForHttp($credentialId);

@@ -9,7 +9,7 @@ class AggregateNodeExecutor extends NodeExecutor
         $properties = $this->node->properties;
         $items = $inputData['items'] ?? [];
 
-        if (! is_array($items) || empty($items)) {
+        if (!is_array($items) || empty($items)) {
             return ['aggregated' => []];
         }
 
@@ -19,9 +19,9 @@ class AggregateNodeExecutor extends NodeExecutor
         foreach ($operations as $operation) {
             $field = $operation['field'] ?? null;
             $type = $operation['type'] ?? 'sum';
-            $outputKey = $operation['output_key'] ?? $field.'_'.$type;
+            $outputKey = $operation['output_key'] ?? $field . '_' . $type;
 
-            if (! $field) {
+            if (!$field) {
                 continue;
             }
 

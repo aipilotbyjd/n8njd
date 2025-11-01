@@ -28,7 +28,7 @@ class WorkflowService
     {
         $workflow = Workflow::find($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -41,7 +41,7 @@ class WorkflowService
     {
         $workflow = Workflow::find($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return false;
         }
 
@@ -57,12 +57,12 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
         $newWorkflow = $workflow->replicate();
-        $newWorkflow->name = $workflow->name.' - copy';
+        $newWorkflow->name = $workflow->name . ' - copy';
         $newWorkflow->created_at = now();
         $newWorkflow->updated_at = now();
         $newWorkflow->save();
@@ -74,7 +74,7 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -88,7 +88,7 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -102,7 +102,7 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -132,7 +132,7 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($id);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -162,12 +162,12 @@ class WorkflowService
     public function restoreVersion(string $workflowId, string $versionId): ?Workflow
     {
         $workflow = $this->getWorkflow($workflowId);
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
         $version = $workflow->versions()->find($versionId);
-        if (! $version) {
+        if (!$version) {
             return null;
         }
 
@@ -183,14 +183,14 @@ class WorkflowService
     public function compareVersions(string $workflowId, string $versionId1, string $versionId2): ?array
     {
         $workflow = $this->getWorkflow($workflowId);
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
         $version1 = $workflow->versions()->find($versionId1);
         $version2 = $workflow->versions()->find($versionId2);
 
-        if (! $version1 || ! $version2) {
+        if (!$version1 || !$version2) {
             return null;
         }
 
@@ -229,7 +229,7 @@ class WorkflowService
     public function getWorkflowComments(string $workflowId)
     {
         $workflow = $this->getWorkflow($workflowId);
-        if (! $workflow) {
+        if (!$workflow) {
             return null;
         }
 
@@ -249,7 +249,7 @@ class WorkflowService
     public function updateWorkflowComment(string $commentId, string $comment): ?Comment
     {
         $commentModel = Comment::find($commentId);
-        if (! $commentModel) {
+        if (!$commentModel) {
             return null;
         }
         $commentModel->content = $comment;
@@ -261,7 +261,7 @@ class WorkflowService
     public function deleteWorkflowComment(string $commentId): bool
     {
         $comment = Comment::find($commentId);
-        if (! $comment) {
+        if (!$comment) {
             return false;
         }
 
@@ -327,17 +327,17 @@ class WorkflowService
     {
         $workflow = $this->getWorkflow($workflowId);
 
-        if (! $workflow) {
+        if (!$workflow) {
             return ['status' => 'error', 'message' => 'Workflow not found.'];
         }
 
         $definition = $workflow->definition;
 
-        if (! isset($definition['nodes']) || ! is_array($definition['nodes'])) {
+        if (!isset($definition['nodes']) || !is_array($definition['nodes'])) {
             return ['status' => 'error', 'message' => 'Workflow must have nodes.'];
         }
 
-        if (! isset($definition['connections']) || ! is_array($definition['connections'])) {
+        if (!isset($definition['connections']) || !is_array($definition['connections'])) {
             return ['status' => 'error', 'message' => 'Workflow must have connections.'];
         }
 

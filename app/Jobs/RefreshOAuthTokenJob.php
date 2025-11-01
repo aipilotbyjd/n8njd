@@ -26,7 +26,7 @@ class RefreshOAuthTokenJob implements ShouldQueue
     {
         $credential = Credential::find($this->credentialId);
 
-        if (! $credential) {
+        if (!$credential) {
             Log::warning('Credential not found for OAuth refresh', ['id' => $this->credentialId]);
 
             return;
@@ -39,7 +39,7 @@ class RefreshOAuthTokenJob implements ShouldQueue
         $data = json_decode(\Illuminate\Support\Facades\Crypt::decryptString($credential->encrypted_data), true);
         $expiresAt = $data['expires_at'] ?? null;
 
-        if (! $expiresAt) {
+        if (!$expiresAt) {
             return;
         }
 

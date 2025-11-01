@@ -30,7 +30,7 @@ class TemplateService
     {
         $template = Template::find($id);
 
-        if (! $template) {
+        if (!$template) {
             return null;
         }
 
@@ -43,7 +43,7 @@ class TemplateService
     {
         $template = Template::find($id);
 
-        if (! $template) {
+        if (!$template) {
             return false;
         }
 

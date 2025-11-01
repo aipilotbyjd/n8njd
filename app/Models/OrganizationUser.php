@@ -76,7 +76,7 @@ class OrganizationUser extends Model
     public function revokePermission(string $permission): void
     {
         $permissions = $this->permissions ?? [];
-        $permissions = array_filter($permissions, fn($p) => $p !== $permission);
+        $permissions = array_filter($permissions, fn ($p) => $p !== $permission);
         $this->update(['permissions' => array_values($permissions)]);
     }
 }

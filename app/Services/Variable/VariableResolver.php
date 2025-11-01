@@ -40,7 +40,7 @@ class VariableResolver
                 ->where('name', $name)
                 ->first();
 
-            if (! $variable) {
+            if (!$variable) {
                 Log::debug('Variable not found', [
                     'variable' => $name,
                     'org_id' => $orgId,

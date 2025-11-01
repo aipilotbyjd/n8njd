@@ -39,7 +39,7 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return null;
         }
 
@@ -57,7 +57,7 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return false;
         }
 
@@ -136,7 +136,7 @@ class CredentialService
     {
         $credential = $this->getCredential($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
@@ -175,7 +175,7 @@ class CredentialService
 
             return ['status' => 'success', 'message' => 'SMTP connection successful'];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'SMTP test failed: '.$e->getMessage()];
+            return ['status' => 'error', 'message' => 'SMTP test failed: ' . $e->getMessage()];
         }
     }
 
@@ -194,7 +194,7 @@ class CredentialService
 
             return ['status' => 'success', 'message' => 'Database credential structure valid'];
         } catch (\Exception $e) {
-            return ['status' => 'error', 'message' => 'Database test failed: '.$e->getMessage()];
+            return ['status' => 'error', 'message' => 'Database test failed: ' . $e->getMessage()];
         }
     }
 
@@ -207,7 +207,7 @@ class CredentialService
     {
         $credential = $this->getCredential($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
@@ -217,19 +217,19 @@ class CredentialService
 
         $data = $credential->data;
         $clientId = $data['client_id'] ?? null;
-        $redirectUri = url('/api/v1/credentials/'.$id.'/oauth/callback');
+        $redirectUri = url('/api/v1/credentials/' . $id . '/oauth/callback');
         $authUrl = $data['authorization_url'] ?? null;
 
-        if (! $clientId || ! $authUrl) {
+        if (!$clientId || !$authUrl) {
             return ['status' => 'error', 'message' => 'OAuth configuration incomplete'];
         }
 
         $state = Str::random(40);
-        cache()->put('oauth_state_'.$id, $state, 600);
+        cache()->put('oauth_state_' . $id, $state, 600);
 
         $scope = $data['scope'] ?? '';
 
-        $authorizationUrl = $authUrl.'?'.http_build_query([
+        $authorizationUrl = $authUrl . '?' . http_build_query([
             'client_id' => $clientId,
             'redirect_uri' => $redirectUri,
             'response_type' => 'code',
@@ -248,15 +248,15 @@ class CredentialService
     {
         $credential = $this->getCredential($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
         $code = $data['code'] ?? null;
         $state = $data['state'] ?? null;
-        $cachedState = cache()->get('oauth_state_'.$id);
+        $cachedState = cache()->get('oauth_state_' . $id);
 
-        if (! $code) {
+        if (!$code) {
             return ['status' => 'error', 'message' => 'Authorization code not provided'];
         }
 
@@ -264,15 +264,15 @@ class CredentialService
             return ['status' => 'error', 'message' => 'Invalid state parameter'];
         }
 
-        cache()->forget('oauth_state_'.$id);
+        cache()->forget('oauth_state_' . $id);
 
         $credData = $credential->data;
         $clientId = $credData['client_id'] ?? null;
         $clientSecret = $credData['client_secret'] ?? null;
         $tokenUrl = $credData['token_url'] ?? null;
-        $redirectUri = url('/api/v1/credentials/'.$id.'/oauth/callback');
+        $redirectUri = url('/api/v1/credentials/' . $id . '/oauth/callback');
 
-        if (! $clientId || ! $clientSecret || ! $tokenUrl) {
+        if (!$clientId || !$clientSecret || !$tokenUrl) {
             return ['status' => 'error', 'message' => 'OAuth configuration incomplete'];
         }
 
@@ -285,10 +285,10 @@ class CredentialService
                 'client_secret' => $clientSecret,
             ]);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 return [
                     'status' => 'error',
-                    'message' => 'Token exchange failed: '.$response->body(),
+                    'message' => 'Token exchange failed: ' . $response->body(),
                 ];
             }
 
@@ -309,7 +309,7 @@ class CredentialService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'OAuth callback failed: '.$e->getMessage(),
+                'message' => 'OAuth callback failed: ' . $e->getMessage(),
             ];
         }
     }
@@ -318,7 +318,7 @@ class CredentialService
     {
         $credential = $this->getCredential($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
@@ -332,7 +332,7 @@ class CredentialService
         $clientId = $credData['client_id'] ?? null;
         $clientSecret = $credData['client_secret'] ?? null;
 
-        if (! $refreshToken || ! $tokenUrl || ! $clientId || ! $clientSecret) {
+        if (!$refreshToken || !$tokenUrl || !$clientId || !$clientSecret) {
             return ['status' => 'error', 'message' => 'Refresh token or OAuth config missing'];
         }
 
@@ -344,10 +344,10 @@ class CredentialService
                 'client_secret' => $clientSecret,
             ]);
 
-            if (! $response->successful()) {
+            if (!$response->successful()) {
                 return [
                     'status' => 'error',
-                    'message' => 'Token refresh failed: '.$response->body(),
+                    'message' => 'Token refresh failed: ' . $response->body(),
                 ];
             }
 
@@ -372,7 +372,7 @@ class CredentialService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'OAuth refresh failed: '.$e->getMessage(),
+                'message' => 'OAuth refresh failed: ' . $e->getMessage(),
             ];
         }
     }
@@ -381,7 +381,7 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return [];
         }
 
@@ -392,13 +392,13 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
         $sharedUsers = $credential->shared_with_users ?? [];
 
-        if (! in_array($userId, $sharedUsers)) {
+        if (!in_array($userId, $sharedUsers)) {
             $sharedUsers[] = $userId;
             $credential->shared_with_users = $sharedUsers;
             $credential->save();
@@ -411,7 +411,7 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['status' => 'error', 'message' => 'Credential not found'];
         }
 
@@ -427,7 +427,7 @@ class CredentialService
     {
         $credential = Credential::find($id);
 
-        if (! $credential) {
+        if (!$credential) {
             return ['error' => 'Credential not found'];
         }
 

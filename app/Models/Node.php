@@ -134,7 +134,7 @@ class Node extends Model
             'position' => array_merge($this->position ?? [], [
                 'x' => $x,
                 'y' => $y,
-            ])
+            ]),
         ]);
     }
 }

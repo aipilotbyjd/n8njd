@@ -28,7 +28,7 @@ class RefreshExpiredOAuthTokens extends Command
                 $expiresAt = $data['expires_at'] ?? null;
                 $refreshToken = $data['refresh_token'] ?? null;
 
-                if (! $expiresAt || ! $refreshToken) {
+                if (!$expiresAt || !$refreshToken) {
                     continue;
                 }
 

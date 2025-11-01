@@ -16,7 +16,7 @@ class SwitchNodeExecutor extends NodeExecutor
             $condition = $case['condition'] ?? null;
             $outputBranch = $case['output'] ?? null;
 
-            if (! $condition || ! $outputBranch) {
+            if (!$condition || !$outputBranch) {
                 continue;
             }
 

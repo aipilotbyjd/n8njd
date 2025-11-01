@@ -22,7 +22,7 @@ class EmailNodeExecutor extends NodeExecutor
         Log::debug('Sending email', [
             'to' => $to,
             'subject' => $subject,
-            'has_credential' => ! empty($credentialId),
+            'has_credential' => !empty($credentialId),
         ]);
 
         $credentials = CredentialResolver::resolveForEmail($credentialId);

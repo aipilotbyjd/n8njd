@@ -22,8 +22,8 @@ class AuthService
             // Create organization for the user
             $organization = Organization::create([
                 'id' => (string) Str::uuid(),
-                'name' => $data['organization_name'] ?? $data['name']."'s Workspace",
-                'slug' => Str::slug($data['organization_name'] ?? $data['name']).'-'.Str::random(6),
+                'name' => $data['organization_name'] ?? $data['name'] . "'s Workspace",
+                'slug' => Str::slug($data['organization_name'] ?? $data['name']) . '-' . Str::random(6),
                 'email' => $data['email'],
                 'timezone' => $data['timezone'] ?? 'UTC',
                 'plan' => 'free',
@@ -99,7 +99,7 @@ class AuthService
 
     public function login(array $data): ?array
     {
-        if (! Auth::attempt($data)) {
+        if (!Auth::attempt($data)) {
             return null;
         }
 
@@ -139,7 +139,7 @@ class AuthService
     {
         $user = User::find($id);
 
-        if (! hash_equals($hash, sha1($user->getEmailForVerification()))) {
+        if (!hash_equals($hash, sha1($user->getEmailForVerification()))) {
             return false;
         }
 
@@ -158,7 +158,7 @@ class AuthService
     {
         $user = User::where('email', $email)->first();
 
-        if (! $user || $user->hasVerifiedEmail()) {
+        if (!$user || $user->hasVerifiedEmail()) {
             return false;
         }
 
@@ -171,7 +171,7 @@ class AuthService
     {
         $user = User::where('email', $email)->first();
 
-        if (! $user) {
+        if (!$user) {
             return null;
         }
 
@@ -192,7 +192,7 @@ class AuthService
             ->where('email', $email)
             ->first();
 
-        if (! $passwordReset || ! Hash::check($token, $passwordReset->token)) {
+        if (!$passwordReset || !Hash::check($token, $passwordReset->token)) {
             return false;
         }
 
@@ -207,7 +207,7 @@ class AuthService
 
     public function changePassword(User $user, string $currentPassword, string $newPassword): bool
     {
-        if (! Hash::check($currentPassword, $user->password)) {
+        if (!Hash::check($currentPassword, $user->password)) {
             return false;
         }
 
@@ -232,7 +232,7 @@ class AuthService
 
         $user = User::where('email', $socialiteUser->getEmail())->first();
 
-        if (! $user) {
+        if (!$user) {
             $user = User::create([
                 'name' => $socialiteUser->getName(),
                 'email' => $socialiteUser->getEmail(),
@@ -263,11 +263,11 @@ class AuthService
         $attributes = $saml2User->getAttributes();
 
         $email = $attributes['urn:oid:0.9.2342.19200300.100.1.3'][0];
-        $name = $attributes['urn:oid:2.5.4.42'][0].' '.$attributes['urn:oid:2.5.4.4'][0];
+        $name = $attributes['urn:oid:2.5.4.42'][0] . ' ' . $attributes['urn:oid:2.5.4.4'][0];
 
         $user = User::where('email', $email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
@@ -351,7 +351,7 @@ class AuthService
             ->where('user_id', $user->id)
             ->first();
 
-        if (! $session) {
+        if (!$session) {
             return false;
         }
 
@@ -381,7 +381,7 @@ class AuthService
     {
         $apiKey = $user->apiKeys()->find($apiKeyId);
 
-        if (! $apiKey) {
+        if (!$apiKey) {
             return false;
         }
 

@@ -25,7 +25,7 @@ class LoopNodeExecutor extends NodeExecutor
         $itemsKey = $properties['items_key'] ?? 'items';
         $items = data_get($inputData, $itemsKey);
 
-        if (! is_array($items)) {
+        if (!is_array($items)) {
             return [
                 'items' => [],
                 'count' => 0,

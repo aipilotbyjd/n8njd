@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\Auth\ChangePasswordRequest;
@@ -38,7 +38,7 @@ class AuthController extends Controller
     {
         $data = $this->authService->login($request->validated());
 
-        if (! $data) {
+        if (!$data) {
             return $this->unauthorized('Invalid credentials');
         }
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request)
     {
-        if (! $this->authService->verifyEmail($request->route('id'), $request->route('hash'))) {
+        if (!$this->authService->verifyEmail($request->route('id'), $request->route('hash'))) {
             return $this->unauthorized('Invalid verification link');
         }
 
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
     public function resendVerification(ResendVerificationRequest $request)
     {
-        if (! $this->authService->resendVerification($request->email)) {
+        if (!$this->authService->resendVerification($request->email)) {
             return $this->unprocessable('User not found or email already verified.');
         }
 
@@ -81,7 +81,7 @@ class AuthController extends Controller
     {
         $token = $this->authService->forgotPassword($request->email);
 
-        if (! $token) {
+        if (!$token) {
             return $this->notFound('User not found');
         }
 
@@ -90,7 +90,7 @@ class AuthController extends Controller
 
     public function resetPassword(ResetPasswordRequest $request)
     {
-        if (! $this->authService->resetPassword($request->email, $request->token, $request->password)) {
+        if (!$this->authService->resetPassword($request->email, $request->token, $request->password)) {
             return $this->unauthorized('Invalid token');
         }
 
@@ -99,7 +99,7 @@ class AuthController extends Controller
 
     public function changePassword(ChangePasswordRequest $request)
     {
-        if (! $this->authService->changePassword($request->user(), $request->current_password, $request->new_password)) {
+        if (!$this->authService->changePassword($request->user(), $request->current_password, $request->new_password)) {
             return $this->unauthorized('Invalid current password');
         }
 
@@ -115,8 +115,8 @@ class AuthController extends Controller
     {
         $data = $this->authService->oauthCallback($provider);
 
-        if (! $data) {
-            return $this->unauthorized('Failed to authenticate with '.$provider);
+        if (!$data) {
+            return $this->unauthorized('Failed to authenticate with ' . $provider);
         }
 
         return $this->success($data, 'User authenticated successfully.');
@@ -131,7 +131,7 @@ class AuthController extends Controller
     {
         $data = $this->authService->samlAcs();
 
-        if (! $data) {
+        if (!$data) {
             return $this->unauthorized('Failed to authenticate with SAML');
         }
 
@@ -147,7 +147,7 @@ class AuthController extends Controller
 
     public function mfaVerify(MfaVerifyRequest $request)
     {
-        if (! $this->authService->mfaVerify($request->user(), $request->one_time_password)) {
+        if (!$this->authService->mfaVerify($request->user(), $request->one_time_password)) {
             return $this->unauthorized('Invalid one time password');
         }
 
@@ -187,7 +187,7 @@ class AuthController extends Controller
 
     public function deleteSession(Request $request, $id)
     {
-        if (! $this->authService->deleteSession($request->user(), $id)) {
+        if (!$this->authService->deleteSession($request->user(), $id)) {
             return $this->notFound('Session not found');
         }
 
@@ -208,7 +208,7 @@ class AuthController extends Controller
 
     public function deleteApiKey(Request $request, $id)
     {
-        if (! $this->authService->deleteApiKey($request->user(), $id)) {
+        if (!$this->authService->deleteApiKey($request->user(), $id)) {
             return $this->notFound('API key not found');
         }
 

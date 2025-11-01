@@ -30,7 +30,6 @@ Route::prefix('webhook')->group(function () {
 });
 
 Route::prefix('v1')->group(function () {
-
     // 1. AUTH SERVICE API
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::post('register', 'register');

@@ -34,7 +34,7 @@ class WebhookAuthenticator
         $username = $config['username'] ?? '';
         $password = $config['password'] ?? '';
 
-        if (! $request->getUser() || ! $request->getPassword()) {
+        if (!$request->getUser() || !$request->getPassword()) {
             return false;
         }
 
@@ -46,7 +46,7 @@ class WebhookAuthenticator
         $expectedToken = $config['token'] ?? '';
         $authHeader = $request->header('Authorization');
 
-        if (! $authHeader || ! str_starts_with($authHeader, 'Bearer ')) {
+        if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
             return false;
         }
 
@@ -62,7 +62,7 @@ class WebhookAuthenticator
 
         $providedKey = $request->header($headerName);
 
-        if (! $providedKey) {
+        if (!$providedKey) {
             return false;
         }
 
@@ -77,7 +77,7 @@ class WebhookAuthenticator
 
         $providedSignature = $request->header($headerName);
 
-        if (! $providedSignature) {
+        if (!$providedSignature) {
             return false;
         }
 
@@ -119,7 +119,7 @@ class WebhookAuthenticator
         }
 
         if (str_contains($pattern, '*')) {
-            $regex = '/^'.str_replace(['.', '*'], ['\.', '.*'], $pattern).'$/';
+            $regex = '/^' . str_replace(['.', '*'], ['\.', '.*'], $pattern) . '$/';
 
             return (bool) preg_match($regex, $clientIp);
         }

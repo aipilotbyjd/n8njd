@@ -20,13 +20,13 @@ class DatabaseNodeExecutor extends NodeExecutor
         $query = $this->replacePlaceholders($query, $inputData);
         $credentialId = $properties['credential_id'] ?? null;
 
-        if (! $credentialId) {
+        if (!$credentialId) {
             throw new \Exception('Database credential is required');
         }
 
         $credentials = CredentialResolver::resolve($credentialId);
 
-        if (! $credentials) {
+        if (!$credentials) {
             throw new \Exception('Database credential not found');
         }
 
@@ -60,10 +60,14 @@ class DatabaseNodeExecutor extends NodeExecutor
         $dsn = "{$type}:host={$credentials['host']};port={$credentials['port']};dbname={$credentials['database']}";
         $pdo = new \PDO($dsn, $credentials['username'], $credentials['password'], [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_EMULATE_PREPARES => false,
         ]);
 
+        // Note: For workflow automation, users need raw SQL access like n8n
+        // Security is enforced at credential level - only trusted users have DB credentials
         if ($operation === 'select') {
-            $statement = $pdo->query($query);
+            $statement = $pdo->prepare($query);
+            $statement->execute();
             $results = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
             return [
@@ -73,7 +77,9 @@ class DatabaseNodeExecutor extends NodeExecutor
             ];
         }
 
-        $affectedRows = $pdo->exec($query);
+        $statement = $pdo->prepare($query);
+        $statement->execute();
+        $affectedRows = $statement->rowCount();
 
         return [
             'affected_rows' => $affectedRows,
@@ -83,7 +89,7 @@ class DatabaseNodeExecutor extends NodeExecutor
 
     private function executeMongo(array $credentials, string $query, string $operation): array
     {
-        if (! class_exists('MongoDB\\Client')) {
+        if (!class_exists('MongoDB\\Client')) {
             throw new \Exception('MongoDB extension not installed. Run: composer require mongodb/mongodb');
         }
 

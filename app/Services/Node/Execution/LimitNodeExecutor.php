@@ -9,7 +9,7 @@ class LimitNodeExecutor extends NodeExecutor
         $properties = $this->node->properties;
         $items = $inputData['items'] ?? [];
 
-        if (! is_array($items)) {
+        if (!is_array($items)) {
             return ['items' => []];
         }
 

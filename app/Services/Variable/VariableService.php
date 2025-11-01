@@ -34,7 +34,7 @@ class VariableService
     {
         $variable = Variable::find($id);
 
-        if (! $variable) {
+        if (!$variable) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class VariableService
     {
         $variable = Variable::find($id);
 
-        if (! $variable) {
+        if (!$variable) {
             return false;
         }
 

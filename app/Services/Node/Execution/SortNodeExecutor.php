@@ -9,14 +9,14 @@ class SortNodeExecutor extends NodeExecutor
         $properties = $this->node->properties;
         $items = $inputData['items'] ?? [];
 
-        if (! is_array($items) || empty($items)) {
+        if (!is_array($items) || empty($items)) {
             return ['items' => []];
         }
 
         $sortField = $properties['field'] ?? null;
         $sortOrder = $properties['order'] ?? 'asc';
 
-        if (! $sortField) {
+        if (!$sortField) {
             return ['items' => $items];
         }
 

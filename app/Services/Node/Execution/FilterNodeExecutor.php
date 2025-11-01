@@ -11,11 +11,11 @@ class FilterNodeExecutor extends NodeExecutor
         $properties = $this->node->properties;
         $condition = $properties['condition'] ?? null;
 
-        if (! $condition) {
+        if (!$condition) {
             return $inputData;
         }
 
-        if (! isset($inputData['items']) || ! is_array($inputData['items'])) {
+        if (!isset($inputData['items']) || !is_array($inputData['items'])) {
             return $inputData;
         }
 

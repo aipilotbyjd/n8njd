@@ -13,13 +13,13 @@ class SubWorkflowNodeExecutor extends NodeExecutor
         $properties = $this->node->properties;
         $subWorkflowId = $properties['sub_workflow_id'] ?? null;
 
-        if (! $subWorkflowId) {
+        if (!$subWorkflowId) {
             throw new \Exception('Sub-workflow ID not specified');
         }
 
         $subWorkflow = Workflow::find($subWorkflowId);
 
-        if (! $subWorkflow) {
+        if (!$subWorkflow) {
             throw new \Exception("Sub-workflow not found: {$subWorkflowId}");
         }
 

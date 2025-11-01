@@ -36,7 +36,7 @@ class NodeService
     {
         $node = Node::find($id);
 
-        if (! $node || ! $node->is_custom) {
+        if (!$node || !$node->is_custom) {
             return null;
         }
 
@@ -49,7 +49,7 @@ class NodeService
     {
         $node = Node::find($id);
 
-        if (! $node || ! $node->is_custom) {
+        if (!$node || !$node->is_custom) {
             return false;
         }
 
@@ -60,7 +60,7 @@ class NodeService
     {
         $node = Node::find($id);
 
-        if (! $node || ! $node->is_custom) {
+        if (!$node || !$node->is_custom) {
             return ['status' => 'error', 'message' => 'Custom node not found'];
         }
 
@@ -160,7 +160,7 @@ class NodeService
             }
 
             foreach ($schema['properties'] as $prop) {
-                if ($prop['required'] && ! isset($config[$prop['name']])) {
+                if ($prop['required'] && !isset($config[$prop['name']])) {
                     return [
                         'status' => 'error',
                         'message' => "Missing required property: {$prop['name']}",

@@ -8,29 +8,37 @@ use Illuminate\Support\Str;
 
 class StorageService
 {
+    private function sanitizePath(string $path): string
+    {
+        // Remove path traversal attempts
+        $path = str_replace(['../', '..\\'], '', $path);
+
+        return ltrim($path, '/');
+    }
+
     public function upload(string $path, $file)
     {
-        return Storage::putFile($path, $file);
+        return Storage::putFile($this->sanitizePath($path), $file);
     }
 
     public function getFiles(string $path)
     {
-        return Storage::files($path);
+        return Storage::files($this->sanitizePath($path));
     }
 
     public function getFile(string $path)
     {
-        return Storage::get($path);
+        return Storage::get($this->sanitizePath($path));
     }
 
     public function deleteFile(string $path)
     {
-        return Storage::delete($path);
+        return Storage::delete($this->sanitizePath($path));
     }
 
     public function downloadFile(string $path)
     {
-        return Storage::download($path);
+        return Storage::download($this->sanitizePath($path));
     }
 
     public function shareFile(string $path, string $userId, string $sharedBy, string $permissions = 'read'): FileShare

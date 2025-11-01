@@ -55,7 +55,7 @@ class RateLimit extends Model
     public function lock(): void
     {
         $this->update([
-            'locked_until' => now()->addMinutes($this->decay_minutes)
+            'locked_until' => now()->addMinutes($this->decay_minutes),
         ]);
     }
 
@@ -63,7 +63,7 @@ class RateLimit extends Model
     {
         $this->update([
             'attempts' => 0,
-            'locked_until' => null
+            'locked_until' => null,
         ]);
     }
 

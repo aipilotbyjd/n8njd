@@ -226,9 +226,12 @@ class Workflow extends Model
     public function getSuccessRateAttribute(): float
     {
         $total = $this->executions()->count();
-        if ($total === 0) return 0;
+        if ($total === 0) {
+            return 0;
+        }
 
         $successful = $this->executions()->where('status', 'success')->count();
+
         return ($successful / $total) * 100;
     }
 }

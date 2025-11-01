@@ -37,7 +37,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return null;
         }
 
@@ -50,7 +50,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return false;
         }
 
@@ -64,15 +64,15 @@ class WebhookService
             ->where('active', true)
             ->first();
 
-        if (! $webhook) {
+        if (!$webhook) {
             return response()->json(['error' => 'Webhook not found or inactive'], 404);
         }
 
-        if (! WebhookAuthenticator::validateIpWhitelist($request, $webhook->ip_whitelist)) {
+        if (!WebhookAuthenticator::validateIpWhitelist($request, $webhook->ip_whitelist)) {
             return response()->json(['error' => 'IP not whitelisted'], 403);
         }
 
-        if (! WebhookAuthenticator::authenticate($request, $webhook->auth_config ?? [], $webhook->auth_type ?? 'none')) {
+        if (!WebhookAuthenticator::authenticate($request, $webhook->auth_config ?? [], $webhook->auth_type ?? 'none')) {
             return response()->json(['error' => 'Authentication failed'], 401);
         }
 
@@ -82,7 +82,7 @@ class WebhookService
 
         $workflow = $webhook->workflow;
 
-        if (! $workflow || ! $workflow->active) {
+        if (!$workflow || !$workflow->active) {
             return response()->json(['error' => 'Workflow not found or inactive'], 404);
         }
 
@@ -107,7 +107,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return ['status' => 'error', 'message' => 'Webhook not found'];
         }
 
@@ -130,7 +130,7 @@ class WebhookService
         } catch (\Exception $e) {
             return [
                 'status' => 'error',
-                'message' => 'Test failed: '.$e->getMessage(),
+                'message' => 'Test failed: ' . $e->getMessage(),
             ];
         }
     }
@@ -139,7 +139,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return ['error' => 'Webhook not found'];
         }
 
@@ -153,7 +153,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return [];
         }
 
@@ -177,7 +177,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return ['error' => 'Webhook not found'];
         }
 
@@ -198,13 +198,13 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return ['status' => 'error', 'message' => 'Webhook not found'];
         }
 
         $newToken = Str::random(64);
 
-        if (! $webhook->auth_config) {
+        if (!$webhook->auth_config) {
             $webhook->auth_config = [];
         }
 
@@ -232,7 +232,7 @@ class WebhookService
     {
         $webhook = Webhook::find($id);
 
-        if (! $webhook) {
+        if (!$webhook) {
             return ['status' => 'error', 'message' => 'Webhook not found'];
         }
 

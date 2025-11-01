@@ -11,9 +11,9 @@ class NodeExecutorFactory
     public static function make(Node $node, WorkflowExecution $workflowExecution): NodeExecutor
     {
         $type = str_replace('-', '', ucwords($node->type, '-'));
-        $className = 'App\\Services\\Node\\Execution\\'.$type.'NodeExecutor';
+        $className = 'App\\Services\\Node\\Execution\\' . $type . 'NodeExecutor';
 
-        if (! class_exists($className)) {
+        if (!class_exists($className)) {
             throw new Exception("Node executor for type '{$node->type}' not found.");
         }
 

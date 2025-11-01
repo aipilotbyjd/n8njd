@@ -29,7 +29,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (! $organization) {
+        if (!$organization) {
             return null;
         }
 
@@ -42,7 +42,7 @@ class OrganizationService
     {
         $organization = Organization::find($id);
 
-        if (! $organization) {
+        if (!$organization) {
             return false;
         }
 
