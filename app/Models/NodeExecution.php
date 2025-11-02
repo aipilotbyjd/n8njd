@@ -42,6 +42,11 @@ class NodeExecution extends Model
         return $this->belongsTo(Execution::class);
     }
 
+    public function workflowExecution(): BelongsTo
+    {
+        return $this->belongsTo(WorkflowExecution::class, 'execution_id');
+    }
+
     public function node(): BelongsTo
     {
         return $this->belongsTo(Node::class);

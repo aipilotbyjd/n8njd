@@ -10,24 +10,17 @@ class VariableService
 {
     public function createVariable(array $data): Variable
     {
-        if ($data['is_secret']) {
-            $data['encrypted_value'] = Crypt::encryptString($data['value']);
-            unset($data['value']);
+        if (!empty($data['is_secret'])) {
+            $data['is_encrypted'] = true;
+            $data['type'] = 'encrypted';
         }
-        $data['id'] = Str::uuid();
 
         return Variable::create($data);
     }
 
     public function getVariable(string $id): ?Variable
     {
-        $variable = Variable::find($id);
-
-        if ($variable && $variable->is_secret) {
-            $variable->value = Crypt::decryptString($variable->encrypted_value);
-        }
-
-        return $variable;
+        return Variable::find($id);
     }
 
     public function updateVariable(string $id, array $data): ?Variable
@@ -38,9 +31,9 @@ class VariableService
             return null;
         }
 
-        if (isset($data['is_secret']) && $data['is_secret']) {
-            $data['encrypted_value'] = Crypt::encryptString($data['value']);
-            unset($data['value']);
+        if (!empty($data['is_secret'])) {
+            $data['is_encrypted'] = true;
+            $data['type'] = 'encrypted';
         }
 
         $variable->update($data);
@@ -63,15 +56,7 @@ class VariableService
     {
         if (!$orgId) return [];
         
-        $variables = Variable::where('organization_id', $orgId)->get();
-
-        foreach ($variables as $variable) {
-            if ($variable->is_secret) {
-                $variable->value = Crypt::decryptString($variable->encrypted_value);
-            }
-        }
-
-        return $variables;
+        return Variable::where('organization_id', $orgId)->get();
     }
 
     public function getEnvironments(?string $orgId)
@@ -108,17 +93,13 @@ class VariableService
     {
         if (!$orgId) return [];
         
-        $secrets = Variable::where('organization_id', $orgId)->where('is_secret', true)->get();
-        foreach ($secrets as $secret) {
-            $secret->value = Crypt::decryptString($secret->encrypted_value);
-        }
-
-        return $secrets;
+        return Variable::where('organization_id', $orgId)->where('is_encrypted', true)->get();
     }
 
     public function createSecret(array $data)
     {
-        $data['is_secret'] = true;
+        $data['is_encrypted'] = true;
+        $data['type'] = 'encrypted';
 
         return $this->createVariable($data);
     }

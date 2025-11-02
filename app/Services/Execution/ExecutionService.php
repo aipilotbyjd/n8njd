@@ -16,7 +16,7 @@ class ExecutionService
 {
     public function getExecutionsByOrg(string $orgId)
     {
-        return WorkflowExecution::where('org_id', $orgId)->get();
+        return WorkflowExecution::where('organization_id', $orgId)->get();
     }
 
     public function getExecution(string $id): ?WorkflowExecution
@@ -57,7 +57,7 @@ class ExecutionService
         Log::info('Starting workflow execution', [
             'workflow_id' => $workflowId,
             'workflow_name' => $workflow->name,
-            'org_id' => $orgId,
+            'organization_id' => $orgId,
             'user_id' => $userId,
             'mode' => $mode,
         ]);
@@ -68,7 +68,7 @@ class ExecutionService
         $workflowExecution = WorkflowExecution::create([
             'id' => Str::uuid(),
             'workflow_id' => $workflowId,
-            'org_id' => $orgId,
+            'organization_id' => $orgId,
             'user_id' => $userId,
             'trigger_data' => $triggerData,
             'mode' => $mode,

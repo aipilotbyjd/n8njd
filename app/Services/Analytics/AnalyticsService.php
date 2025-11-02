@@ -27,7 +27,7 @@ class AnalyticsService
 
         return [
             'total_workflows' => Workflow::where('organization_id', $orgId)->count(),
-            'active_workflows' => Workflow::where('organization_id', $orgId)->where('active', true)->count(),
+            'active_workflows' => Workflow::where('organization_id', $orgId)->where('is_active', true)->count(),
             'total_executions' => $executions->count(),
             'executions_today' => $executions->whereDate('created_at', today())->count(),
             'success_rate' => $this->calculateSuccessRate($orgId),

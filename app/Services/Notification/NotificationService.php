@@ -42,10 +42,10 @@ class NotificationService
 
     public function updateSettings(string $userId, array $settings)
     {
-        foreach ($settings as $key => $value) {
+        foreach ($settings as $eventType => $enabled) {
             NotificationSetting::updateOrCreate(
-                ['user_id' => $userId, 'key' => $key],
-                ['value' => $value]
+                ['user_id' => $userId, 'event_type' => $eventType],
+                ['is_enabled' => (bool) $enabled, 'channels' => []]
             );
         }
 
@@ -59,7 +59,6 @@ class NotificationService
 
     public function createChannel(string $userId, array $channel): NotificationChannel
     {
-        $channel['id'] = Str::uuid();
         $channel['user_id'] = $userId;
 
         return NotificationChannel::create($channel);

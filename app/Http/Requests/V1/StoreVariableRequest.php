@@ -11,13 +11,22 @@ class StoreVariableRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->has('name') && !$this->has('key')) {
+            $this->merge(['key' => $this->input('name')]);
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
+            'key' => 'required|string|max:255',
             'value' => 'required|string',
+            'type' => 'sometimes|string|in:string,number,boolean,json,encrypted',
+            'description' => 'nullable|string',
             'is_secret' => 'sometimes|boolean',
-            'scope' => 'sometimes|string|in:global,environment,workflow',
+            'workflow_id' => 'nullable|integer|exists:workflows,id',
         ];
     }
 }

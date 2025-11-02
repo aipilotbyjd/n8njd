@@ -32,26 +32,31 @@ class AiController extends Controller
 
     public function generateWorkflow(Request $request)
     {
+        $request->validate(['description' => 'required|string']);
         return $this->aiService->generateWorkflow($request->input('description'));
     }
 
     public function explainError(Request $request)
     {
+        $request->validate(['error' => 'required|string']);
         return $this->aiService->explainError($request->input('error'));
     }
 
     public function chat(Request $request)
     {
+        $request->validate(['message' => 'required|string']);
         return $this->aiService->chat($request->input('message'));
     }
 
     public function generateExpression(Request $request)
     {
+        $request->validate(['prompt' => 'required|string']);
         return $this->aiService->generateExpression($request->input('prompt'));
     }
 
     public function generateCode(Request $request)
     {
+        $request->validate(['prompt' => 'required|string']);
         return $this->aiService->generateCode($request->input('prompt'));
     }
 }

@@ -17,32 +17,38 @@ class AnalyticsController extends Controller
 
     public function getDashboard(Request $request)
     {
-        return $this->analyticsService->getDashboard();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getDashboard($orgId);
     }
 
     public function getOverview(Request $request)
     {
-        return $this->analyticsService->getOverview();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getOverview($orgId);
     }
 
     public function getWorkflowPerformance(Request $request)
     {
-        return $this->analyticsService->getWorkflowPerformance();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getWorkflowPerformance($orgId);
     }
 
     public function getWorkflowSuccessRate(Request $request)
     {
-        return $this->analyticsService->getWorkflowSuccessRate();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getWorkflowSuccessRate($orgId);
     }
 
     public function getWorkflowExecutionTime(Request $request)
     {
-        return $this->analyticsService->getWorkflowExecutionTime();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getWorkflowExecutionTime($orgId);
     }
 
     public function getMostUsedWorkflows(Request $request)
     {
-        return $this->analyticsService->getMostUsedWorkflows();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getMostUsedWorkflows($orgId);
     }
 
     public function getWorkflowMetrics(Request $request, $id)
@@ -52,62 +58,74 @@ class AnalyticsController extends Controller
 
     public function getExecutionTimeline(Request $request)
     {
-        return $this->analyticsService->getExecutionTimeline();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getExecutionTimeline($orgId);
     }
 
     public function getExecutionStatusBreakdown(Request $request)
     {
-        return $this->analyticsService->getExecutionStatusBreakdown();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getExecutionStatusBreakdown($orgId);
     }
 
     public function getExecutionErrorRate(Request $request)
     {
-        return $this->analyticsService->getExecutionErrorRate();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getExecutionErrorRate($orgId);
     }
 
     public function getExecutionResourceUsage(Request $request)
     {
-        return $this->analyticsService->getExecutionResourceUsage();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getExecutionResourceUsage($orgId);
     }
 
     public function getNodeUsage(Request $request)
     {
-        return $this->analyticsService->getNodeUsage();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getNodeUsage($orgId);
     }
 
     public function getNodePerformance(Request $request)
     {
-        return $this->analyticsService->getNodePerformance();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getNodePerformance($orgId);
     }
 
     public function getNodeErrorRate(Request $request)
     {
-        return $this->analyticsService->getNodeErrorRate();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getNodeErrorRate($orgId);
     }
 
     public function getCostBreakdown(Request $request)
     {
-        return $this->analyticsService->getCostBreakdown();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getCostBreakdown($orgId);
     }
 
     public function getCostTrends(Request $request)
     {
-        return $this->analyticsService->getCostTrends();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getCostTrends($orgId);
     }
 
     public function getCostByWorkflow(Request $request)
     {
-        return $this->analyticsService->getCostByWorkflow();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getCostByWorkflow($orgId);
     }
 
     public function getReports(Request $request)
     {
-        return $this->analyticsService->getReports();
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->getReports($orgId);
     }
 
     public function createReport(Request $request)
     {
-        return $this->analyticsService->createReport($request->all());
+        $orgId = $request->user()->org_id;
+        return $this->analyticsService->createReport($orgId, $request->all());
     }
 
     public function getReport(Request $request, $id)

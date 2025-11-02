@@ -36,30 +36,17 @@ class VariableResolver
         $cacheKey = "variable:{$orgId}:{$name}";
 
         return Cache::remember($cacheKey, 300, function () use ($name, $orgId) {
-            $variable = Variable::where('org_id', $orgId)
-                ->where('name', $name)
+            $variable = Variable::where('organization_id', $orgId)
+                ->where('key', $name)
                 ->first();
 
             if (!$variable) {
                 Log::debug('Variable not found', [
                     'variable' => $name,
-                    'org_id' => $orgId,
+                    'organization_id' => $orgId,
                 ]);
 
                 return null;
-            }
-
-            if ($variable->is_secret) {
-                try {
-                    return Crypt::decryptString($variable->encrypted_value);
-                } catch (\Exception $e) {
-                    Log::error('Failed to decrypt secret variable', [
-                        'variable' => $name,
-                        'error' => $e->getMessage(),
-                    ]);
-
-                    return null;
-                }
             }
 
             return $variable->value;
@@ -69,22 +56,11 @@ class VariableResolver
     public static function getAllVariables(string $orgId): array
     {
         return Cache::remember("variables:{$orgId}", 300, function () use ($orgId) {
-            $variables = Variable::where('org_id', $orgId)->get();
+            $variables = Variable::where('organization_id', $orgId)->get();
 
             $result = [];
             foreach ($variables as $variable) {
-                if ($variable->is_secret) {
-                    try {
-                        $result[$variable->name] = Crypt::decryptString($variable->encrypted_value);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to decrypt secret variable', [
-                            'variable' => $variable->name,
-                        ]);
-                        $result[$variable->name] = null;
-                    }
-                } else {
-                    $result[$variable->name] = $variable->value;
-                }
+                $result[$variable->key] = $variable->value;
             }
 
             return $result;
@@ -95,9 +71,9 @@ class VariableResolver
     {
         Cache::forget("variables:{$orgId}");
 
-        $variables = Variable::where('org_id', $orgId)->get();
+        $variables = Variable::where('organization_id', $orgId)->get();
         foreach ($variables as $variable) {
-            Cache::forget("variable:{$orgId}:{$variable->name}");
+            Cache::forget("variable:{$orgId}:{$variable->key}");
         }
     }
 }

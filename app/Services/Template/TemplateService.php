@@ -67,7 +67,7 @@ class TemplateService
         return [];
     }
 
-    public function search(string $query)
+    public function search(?string $query)
     {
         return [];
     }
