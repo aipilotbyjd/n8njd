@@ -23,11 +23,11 @@ class AnalyticsService
 
     public function getOverview(string $orgId)
     {
-        $executions = WorkflowExecution::where('org_id', $orgId);
+        $executions = WorkflowExecution::where('organization_id', $orgId);
 
         return [
-            'total_workflows' => Workflow::where('org_id', $orgId)->count(),
-            'active_workflows' => Workflow::where('org_id', $orgId)->where('active', true)->count(),
+            'total_workflows' => Workflow::where('organization_id', $orgId)->count(),
+            'active_workflows' => Workflow::where('organization_id', $orgId)->where('active', true)->count(),
             'total_executions' => $executions->count(),
             'executions_today' => $executions->whereDate('created_at', today())->count(),
             'success_rate' => $this->calculateSuccessRate($orgId),
@@ -37,7 +37,7 @@ class AnalyticsService
 
     public function getWorkflowPerformance(string $orgId, ?int $limit = 20)
     {
-        return Workflow::where('org_id', $orgId)
+        return Workflow::where('organization_id', $orgId)
             ->withCount(['executions as total_executions'])
             ->withAvg('executions as avg_execution_time', 'execution_time_ms')
             ->orderBy('total_executions', 'desc')
@@ -62,7 +62,7 @@ class AnalyticsService
 
     public function getWorkflowSuccessRate(string $orgId, ?string $workflowId = null)
     {
-        $query = WorkflowExecution::where('org_id', $orgId);
+        $query = WorkflowExecution::where('organization_id', $orgId);
 
         if ($workflowId) {
             $query->where('workflow_id', $workflowId);
@@ -83,7 +83,7 @@ class AnalyticsService
 
     public function getWorkflowExecutionTime(string $orgId, ?string $workflowId = null)
     {
-        $query = WorkflowExecution::where('org_id', $orgId)->whereNotNull('execution_time_ms');
+        $query = WorkflowExecution::where('organization_id', $orgId)->whereNotNull('execution_time_ms');
 
         if ($workflowId) {
             $query->where('workflow_id', $workflowId);
@@ -99,7 +99,7 @@ class AnalyticsService
 
     public function getMostUsedWorkflows(string $orgId, int $limit = 10)
     {
-        return Workflow::where('org_id', $orgId)
+        return Workflow::where('organization_id', $orgId)
             ->withCount('executions')
             ->orderBy('executions_count', 'desc')
             ->limit($limit)
@@ -140,7 +140,7 @@ class AnalyticsService
 
     public function getExecutionTimeline(string $orgId, int $days = 30)
     {
-        $executions = WorkflowExecution::where('org_id', $orgId)
+        $executions = WorkflowExecution::where('organization_id', $orgId)
             ->where('created_at', '>=', now()->subDays($days))
             ->selectRaw('DATE(created_at) as date, status, COUNT(*) as count')
             ->groupBy('date', 'status')
@@ -166,7 +166,7 @@ class AnalyticsService
 
     public function getExecutionStatusBreakdown(string $orgId)
     {
-        return WorkflowExecution::where('org_id', $orgId)
+        return WorkflowExecution::where('organization_id', $orgId)
             ->selectRaw('status, COUNT(*) as count')
             ->groupBy('status')
             ->get()
@@ -177,7 +177,7 @@ class AnalyticsService
 
     public function getExecutionErrorRate(string $orgId, int $days = 30)
     {
-        $executions = WorkflowExecution::where('org_id', $orgId)
+        $executions = WorkflowExecution::where('organization_id', $orgId)
             ->where('created_at', '>=', now()->subDays($days))
             ->selectRaw('DATE(created_at) as date, 
                 COUNT(*) as total, 
@@ -199,7 +199,7 @@ class AnalyticsService
 
     public function getExecutionResourceUsage(string $orgId)
     {
-        $executions = WorkflowExecution::where('org_id', $orgId)->whereNotNull('execution_time_ms');
+        $executions = WorkflowExecution::where('organization_id', $orgId)->whereNotNull('execution_time_ms');
 
         return [
             'total_execution_time_ms' => $executions->sum('execution_time_ms'),
@@ -212,7 +212,7 @@ class AnalyticsService
     public function getNodeUsage(string $orgId)
     {
         return NodeExecution::whereHas('workflowExecution', function ($query) use ($orgId) {
-            $query->where('org_id', $orgId);
+            $query->where('organization_id', $orgId);
         })
             ->selectRaw('node_type, COUNT(*) as count')
             ->groupBy('node_type')
@@ -229,7 +229,7 @@ class AnalyticsService
     public function getNodePerformance(string $orgId)
     {
         return NodeExecution::whereHas('workflowExecution', function ($query) use ($orgId) {
-            $query->where('org_id', $orgId);
+            $query->where('organization_id', $orgId);
         })
             ->selectRaw('node_type, 
                 AVG(execution_time_ms) as avg_time, 
@@ -252,7 +252,7 @@ class AnalyticsService
     public function getNodeErrorRate(string $orgId)
     {
         return NodeExecution::whereHas('workflowExecution', function ($query) use ($orgId) {
-            $query->where('org_id', $orgId);
+            $query->where('organization_id', $orgId);
         })
             ->selectRaw('node_type, 
                 COUNT(*) as total,
@@ -318,7 +318,7 @@ class AnalyticsService
 
     private function calculateSuccessRate(string $orgId): float
     {
-        $executions = WorkflowExecution::where('org_id', $orgId);
+        $executions = WorkflowExecution::where('organization_id', $orgId);
         $total = $executions->count();
 
         if ($total === 0) {
@@ -332,7 +332,7 @@ class AnalyticsService
 
     private function getRecentExecutions(string $orgId, int $limit)
     {
-        return WorkflowExecution::where('org_id', $orgId)
+        return WorkflowExecution::where('organization_id', $orgId)
             ->with('workflow:id,name')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
@@ -350,7 +350,7 @@ class AnalyticsService
 
     private function getTopWorkflows(string $orgId, int $limit)
     {
-        return Workflow::where('org_id', $orgId)
+        return Workflow::where('organization_id', $orgId)
             ->withCount('executions')
             ->orderBy('executions_count', 'desc')
             ->limit($limit)
@@ -366,7 +366,7 @@ class AnalyticsService
 
     private function getErrorRate(string $orgId): float
     {
-        $executions = WorkflowExecution::where('org_id', $orgId);
+        $executions = WorkflowExecution::where('organization_id', $orgId);
         $total = $executions->count();
 
         if ($total === 0) {

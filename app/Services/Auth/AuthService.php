@@ -19,49 +19,25 @@ class AuthService
     public function register(array $data): array
     {
         return DB::transaction(function () use ($data) {
-            // Create organization for the user
-            $organization = Organization::create([
-                'id' => (string) Str::uuid(),
-                'name' => $data['organization_name'] ?? $data['name'] . "'s Workspace",
-                'slug' => Str::slug($data['organization_name'] ?? $data['name']) . '-' . Str::random(6),
-                'email' => $data['email'],
-                'timezone' => $data['timezone'] ?? 'UTC',
-                'plan' => 'free',
-                'is_active' => true,
-            ]);
-
             $user = User::create([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
-                'org_id' => $organization->id,
-                'role' => 'owner',
-                'status' => 'active',
             ]);
 
-            // Set the owner
-            $organization->owner_id = $user->id;
-            $organization->save();
+            $organization = Organization::create([
+                'name' => $data['organization_name'] ?? $data['name'] . "'s Workspace",
+                'plan' => 'free',
+                'is_active' => true,
+            ]);
 
-            // Also add to organization_members table
-            DB::table('organization_members')->insert([
-                'organization_id' => $organization->id,
-                'user_id' => $user->id,
+            $organization->users()->attach($user->id, [
                 'role' => 'owner',
                 'joined_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
 
-            // Create default variables for the organization
-            $this->createDefaultVariables($organization->id, $user->id);
-
-            // Passport syntax
             $tokenResult = $user->createToken('auth_token');
             $token = $tokenResult->accessToken;
-
-            // Load relationships for response
-            $user->load('organization');
 
             return [
                 'user' => $user,
@@ -72,30 +48,7 @@ class AuthService
         });
     }
 
-    private function createDefaultVariables(string $orgId, int $userId): void
-    {
-        Variable::create([
-            'id' => (string) Str::uuid(),
-            'org_id' => $orgId,
-            'user_id' => $userId,
-            'name' => 'APP_NAME',
-            'value' => config('app.name'),
-            'type' => 'string',
-            'scope' => 'global',
-            'is_secret' => false,
-        ]);
 
-        Variable::create([
-            'id' => (string) Str::uuid(),
-            'org_id' => $orgId,
-            'user_id' => $userId,
-            'name' => 'APP_URL',
-            'value' => config('app.url'),
-            'type' => 'string',
-            'scope' => 'global',
-            'is_secret' => false,
-        ]);
-    }
 
     public function login(array $data): ?array
     {

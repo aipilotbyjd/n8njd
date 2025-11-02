@@ -155,4 +155,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(AuditLog::class);
     }
+
+    /**
+     * Get the user's primary organization ID.
+     */
+    public function getOrgIdAttribute(): ?int
+    {
+        return $this->organizations()->first()?->id;
+    }
 }

@@ -45,7 +45,7 @@ class RunScheduledWorkflows extends Command
 
                     $this->executionService->executeWorkflow(
                         $schedule->workflow_id,
-                        $schedule->workflow->org_id,
+                        $schedule->workflow->organization_id,
                         $schedule->created_by,
                         $schedule->execution_data ?? [],
                         'schedule'

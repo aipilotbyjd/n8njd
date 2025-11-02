@@ -18,7 +18,8 @@ class ExecutionController extends Controller
 
     public function index(Request $request)
     {
-        return $this->executionService->getExecutionsByOrg($request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->executionService->getExecutionsByOrg($orgId);
     }
 
     public function show(Request $request, $id)
@@ -150,11 +151,13 @@ class ExecutionController extends Controller
 
     public function executeWorkflow(ExecuteWorkflowRequest $request, $id)
     {
-        return $this->executionService->executeWorkflow($id, $request->user()->org_id, $request->user()->id, $request->validated(), 'manual');
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->executionService->executeWorkflow($id, $orgId, $request->user()->id, $request->validated(), 'manual');
     }
 
     public function testExecuteWorkflow(ExecuteWorkflowRequest $request, $id)
     {
-        return $this->executionService->executeWorkflow($id, $request->user()->org_id, $request->user()->id, $request->validated(), 'test');
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->executionService->executeWorkflow($id, $orgId, $request->user()->id, $request->validated(), 'test');
     }
 }

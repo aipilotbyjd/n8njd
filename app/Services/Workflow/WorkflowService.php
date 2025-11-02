@@ -48,9 +48,13 @@ class WorkflowService
         return $workflow->delete();
     }
 
-    public function getWorkflowsByOrg(string $orgId)
+    public function getWorkflowsByOrg(?string $orgId, int $perPage = 15)
     {
-        return Workflow::where('org_id', $orgId)->get();
+        if (!$orgId) {
+            return Workflow::where('id', null)->paginate($perPage);
+        }
+        
+        return Workflow::where('organization_id', $orgId)->paginate($perPage);
     }
 
     public function duplicateWorkflow(string $id): ?Workflow
@@ -122,8 +126,8 @@ class WorkflowService
 
     public function importWorkflow(array $data, string $orgId, string $userId): Workflow
     {
-        $data['org_id'] = $orgId;
-        $data['user_id'] = $userId;
+        $data['organization_id'] = $orgId;
+        $data['created_by'] = $userId;
 
         return $this->createWorkflow($data);
     }
@@ -348,7 +352,7 @@ class WorkflowService
     {
         $executionService = app(ExecutionService::class);
 
-        return $executionService->runWorkflow($workflowId, $user->org_id, $user->id, [], 'test');
+        return $executionService->runWorkflow($workflowId, $user->organization_id, $user->id, [], 'test');
     }
 
     public function healthCheck(string $workflowId)

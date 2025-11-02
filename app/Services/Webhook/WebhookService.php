@@ -15,16 +15,14 @@ class WebhookService
         $this->executionService = $executionService;
     }
 
-    public function getWebhooksByOrg(string $orgId)
+    public function getWebhooksByOrg(?string $orgId)
     {
-        return Webhook::where('org_id', $orgId)->get();
+        if (!$orgId) return [];
+        return Webhook::whereHas('workflow', fn($q) => $q->where('organization_id', $orgId))->get();
     }
 
-    public function createWebhook(array $data, string $orgId): Webhook
+    public function createWebhook(array $data, ?string $orgId): Webhook
     {
-        $data['id'] = Str::uuid();
-        $data['org_id'] = $orgId;
-
         return Webhook::create($data);
     }
 
@@ -90,7 +88,7 @@ class WebhookService
 
         $this->executionService->executeWorkflow(
             $workflowId,
-            $webhook->org_id,
+            $webhook->organization_id,
             $workflow->user_id,
             $data,
             'webhook'
@@ -116,7 +114,7 @@ class WebhookService
 
             $this->executionService->executeWorkflow(
                 $webhook->workflow_id,
-                $webhook->org_id,
+                $webhook->organization_id,
                 $webhook->workflow->user_id,
                 $testData,
                 'test'

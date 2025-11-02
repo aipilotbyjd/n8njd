@@ -14,7 +14,7 @@ class HttpRequestNodeExecutor extends NodeExecutor
     public function execute(array $inputData = [])
     {
         $properties = $this->node->properties;
-        $orgId = $this->workflowExecution->org_id;
+        $orgId = $this->workflowExecution->organization_id;
 
         $url = $this->resolveVariables($properties['url'] ?? '', $orgId);
         $url = $this->replacePlaceholders($url, $inputData);

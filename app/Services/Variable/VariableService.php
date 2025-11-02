@@ -59,9 +59,11 @@ class VariableService
         return $variable->delete();
     }
 
-    public function getVariablesByOrg(string $orgId)
+    public function getVariablesByOrg(?string $orgId)
     {
-        $variables = Variable::where('org_id', $orgId)->get();
+        if (!$orgId) return [];
+        
+        $variables = Variable::where('organization_id', $orgId)->get();
 
         foreach ($variables as $variable) {
             if ($variable->is_secret) {
@@ -72,9 +74,10 @@ class VariableService
         return $variables;
     }
 
-    public function getEnvironments(string $orgId)
+    public function getEnvironments(?string $orgId)
     {
-        return Variable::where('org_id', $orgId)->where('scope', 'environment')->get();
+        if (!$orgId) return [];
+        return Variable::where('organization_id', $orgId)->where('scope', 'environment')->get();
     }
 
     public function createEnvironment(array $data)
@@ -101,9 +104,11 @@ class VariableService
         return $this->getVariable($id);
     }
 
-    public function getSecrets(string $orgId)
+    public function getSecrets(?string $orgId)
     {
-        $secrets = Variable::where('org_id', $orgId)->where('is_secret', true)->get();
+        if (!$orgId) return [];
+        
+        $secrets = Variable::where('organization_id', $orgId)->where('is_secret', true)->get();
         foreach ($secrets as $secret) {
             $secret->value = Crypt::decryptString($secret->encrypted_value);
         }

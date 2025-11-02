@@ -77,11 +77,7 @@ class OrganizationService
 
     public function getTeams(Organization $org)
     {
-        return $org->teams()
-            ->withCount('members')
-            ->with('creator:id,name')
-            ->latest()
-            ->get();
+        return $org->teams()->with('creator:id,name')->latest()->get();
     }
 
     public function createTeam(Organization $org, array $data, User $user): Team

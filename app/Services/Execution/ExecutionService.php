@@ -271,7 +271,7 @@ class ExecutionService
 
         $this->executeWorkflow(
             $execution->workflow_id,
-            $execution->org_id,
+            $execution->organization_id,
             $execution->user_id,
             $execution->trigger_data,
             $execution->mode

@@ -33,7 +33,7 @@ class SubWorkflowNodeExecutor extends NodeExecutor
 
         $subExecution = $executionService->runWorkflow(
             $subWorkflowId,
-            $this->workflowExecution->org_id,
+            $this->workflowExecution->organization_id,
             $this->workflowExecution->user_id,
             $inputData,
             'sub-workflow'

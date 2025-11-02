@@ -24,12 +24,14 @@ class WebhookController extends Controller
 
     public function index(Request $request)
     {
-        return $this->webhookService->getWebhooksByOrg($request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->webhookService->getWebhooksByOrg($orgId);
     }
 
     public function store(StoreWebhookRequest $request)
     {
-        return $this->webhookService->createWebhook($request->validated(), $request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->webhookService->createWebhook($request->validated(), $orgId);
     }
 
     public function show(Request $request, $id)

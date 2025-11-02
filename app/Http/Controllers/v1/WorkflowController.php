@@ -23,14 +23,15 @@ class WorkflowController extends Controller
 
     public function index(Request $request)
     {
-        return $this->workflowService->getWorkflowsByOrg($request->user()->org_id);
+        $perPage = $request->get('per_page', 15);
+        return $this->workflowService->getWorkflowsByOrg($request->user()->org_id, $perPage);
     }
 
     public function store(StoreWorkflowRequest $request)
     {
         $data = $request->validated();
-        $data['org_id'] = $request->user()->org_id;
-        $data['user_id'] = $request->user()->id;
+        $data['organization_id'] = $request->user()->org_id;
+        $data['created_by'] = $request->user()->id;
 
         return $this->workflowService->createWorkflow($data);
     }

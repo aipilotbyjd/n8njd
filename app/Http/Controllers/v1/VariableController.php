@@ -22,14 +22,15 @@ class VariableController extends Controller
 
     public function index(Request $request)
     {
-        return $this->variableService->getVariablesByOrg($request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->variableService->getVariablesByOrg($orgId);
     }
 
     public function store(StoreVariableRequest $request)
     {
         $data = $request->validated();
-        $data['org_id'] = $request->user()->org_id;
-        $data['user_id'] = $request->user()->id;
+        $data['organization_id'] = $request->user()->organizations()->first()->id ?? null;
+        $data['created_by'] = $request->user()->id;
 
         return $this->variableService->createVariable($data);
     }
@@ -51,14 +52,15 @@ class VariableController extends Controller
 
     public function getEnvironments(Request $request)
     {
-        return $this->variableService->getEnvironments($request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->variableService->getEnvironments($orgId);
     }
 
     public function createEnvironment(StoreEnvironmentRequest $request)
     {
         $data = $request->validated();
-        $data['org_id'] = $request->user()->org_id;
-        $data['user_id'] = $request->user()->id;
+        $data['organization_id'] = $request->user()->organizations()->first()->id ?? null;
+        $data['created_by'] = $request->user()->id;
 
         return $this->variableService->createEnvironment($data);
     }
@@ -80,14 +82,15 @@ class VariableController extends Controller
 
     public function getSecrets(Request $request)
     {
-        return $this->variableService->getSecrets($request->user()->org_id);
+        $orgId = $request->user()->organizations()->first()->id ?? null;
+        return $this->variableService->getSecrets($orgId);
     }
 
     public function createSecret(StoreSecretRequest $request)
     {
         $data = $request->validated();
-        $data['org_id'] = $request->user()->org_id;
-        $data['user_id'] = $request->user()->id;
+        $data['organization_id'] = $request->user()->organizations()->first()->id ?? null;
+        $data['created_by'] = $request->user()->id;
 
         return $this->variableService->createSecret($data);
     }
