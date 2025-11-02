@@ -24,7 +24,8 @@ class CredentialController extends Controller
 
     public function store(StoreCredentialRequest $request)
     {
-        return $this->credentialService->createCredential($request->validated(), $request->user()->org_id, $request->user()->id);
+        $data = $request->validated();
+        return $this->credentialService->createCredential($data, $request->user()->org_id, $request->user()->id);
     }
 
     public function show(Request $request, $id)

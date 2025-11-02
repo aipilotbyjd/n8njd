@@ -24,7 +24,7 @@ class Credential extends Model
     protected function casts(): array
     {
         return [
-            'data' => 'encrypted:array',
+            'data' => 'array',
             'is_active' => 'boolean',
             'last_used_at' => 'datetime',
         ];
