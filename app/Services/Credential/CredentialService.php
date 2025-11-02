@@ -10,29 +10,20 @@ class CredentialService
 {
     public function getCredentialsByOrg(string $orgId)
     {
-        return Credential::where('org_id', $orgId)->get();
+        return Credential::where('organization_id', $orgId)->get();
     }
 
     public function createCredential(array $data, string $orgId, string $userId): Credential
     {
-        $data['id'] = Str::uuid();
-        $data['org_id'] = $orgId;
-        $data['user_id'] = $userId;
-        $data['encrypted_data'] = Crypt::encryptString(json_encode($data['data']));
-        unset($data['data']);
+        $data['organization_id'] = $orgId;
+        $data['created_by'] = $userId;
 
         return Credential::create($data);
     }
 
     public function getCredential(string $id): ?Credential
     {
-        $credential = Credential::find($id);
-
-        if ($credential) {
-            $credential->data = json_decode(Crypt::decryptString($credential->encrypted_data), true);
-        }
-
-        return $credential;
+        return Credential::find($id);
     }
 
     public function updateCredential(string $id, array $data): ?Credential
@@ -41,11 +32,6 @@ class CredentialService
 
         if (!$credential) {
             return null;
-        }
-
-        if (isset($data['data'])) {
-            $data['encrypted_data'] = Crypt::encryptString(json_encode($data['data']));
-            unset($data['data']);
         }
 
         $credential->update($data);
