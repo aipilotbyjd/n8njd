@@ -263,6 +263,20 @@ Route::prefix('v1')->group(function () {
         Route::get('billing', 'getBilling');
     });
 
+    // 11a. PROJECTS SERVICE API
+    Route::prefix('organizations/{organization}/projects')->middleware('auth:api')->controller(\App\Http\Controllers\v1\ProjectController::class)->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::get('{project}', 'show');
+        Route::put('{project}', 'update');
+        Route::delete('{project}', 'destroy');
+        Route::get('{project}/stats', 'getStats');
+        Route::post('{project}/archive', 'archive');
+        Route::post('{project}/complete', 'complete');
+        Route::post('bulk-delete', 'bulkDelete');
+    });
+
+
     // 12. AI/ML SERVICE API
     Route::prefix('ai')->middleware(['auth:api'])->controller(AiController::class)->group(function () {
         Route::post('suggest-nodes', 'suggestNodes');

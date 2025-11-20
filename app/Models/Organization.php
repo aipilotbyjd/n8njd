@@ -42,6 +42,11 @@ class Organization extends Model
         return $this->hasMany(Credential::class);
     }
 
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
     public function isOwner(int $userId): bool
     {
         return $this->users()->wherePivot('user_id', $userId)->wherePivot('role', 'owner')->exists();

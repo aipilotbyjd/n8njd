@@ -52,6 +52,14 @@ class Workflow extends Model
     }
 
     /**
+     * The project that owns the workflow.
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
      * The user that created the workflow.
      */
     public function creator(): BelongsTo
