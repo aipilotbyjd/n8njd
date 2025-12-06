@@ -3,38 +3,38 @@
 namespace App\Services\Node;
 
 use App\Models\Node;
+use App\Models\NodeType;
 use Illuminate\Support\Str;
 
 class NodeService
 {
     public function getNodes()
     {
-        return Node::where('is_custom', false)->get();
+        return NodeType::active()->get();
     }
 
-    public function getNodeByType(string $type): ?Node
+    public function getNodeByType(string $type): ?NodeType
     {
-        return Node::where('type', $type)->first();
+        return NodeType::findByNodeType($type);
     }
 
     public function getCustomNodes(string $orgId)
     {
-        return Node::where('is_custom', true)->where('org_id', $orgId)->get();
+        return NodeType::where('is_custom', true)->where('organization_id', $orgId)->get();
     }
 
-    public function createCustomNode(array $data, string $orgId, string $userId): Node
+    public function createCustomNode(array $data, string $orgId, string $userId): NodeType
     {
-        $data['id'] = Str::uuid();
         $data['is_custom'] = true;
-        $data['org_id'] = $orgId;
-        $data['user_id'] = $userId;
+        $data['organization_id'] = $orgId;
+        $data['created_by'] = $userId;
 
-        return Node::create($data);
+        return NodeType::create($data);
     }
 
-    public function updateCustomNode(string $id, array $data): ?Node
+    public function updateCustomNode(string $id, array $data): ?NodeType
     {
-        $node = Node::find($id);
+        $node = NodeType::find($id);
 
         if (!$node || !$node->is_custom) {
             return null;
@@ -47,7 +47,7 @@ class NodeService
 
     public function deleteCustomNode(string $id): bool
     {
-        $node = Node::find($id);
+        $node = NodeType::find($id);
 
         if (!$node || !$node->is_custom) {
             return false;
@@ -107,47 +107,13 @@ class NodeService
 
     public function getSchema(string $type)
     {
-        $schemas = [
-            'http-request' => [
-                'properties' => [
-                    ['name' => 'url', 'type' => 'string', 'required' => true],
-                    ['name' => 'method', 'type' => 'select', 'options' => ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 'default' => 'GET'],
-                    ['name' => 'headers', 'type' => 'keyvalue', 'required' => false],
-                    ['name' => 'body', 'type' => 'json', 'required' => false],
-                    ['name' => 'credential_id', 'type' => 'credential', 'required' => false],
-                    ['name' => 'timeout', 'type' => 'number', 'default' => 30],
-                ],
-            ],
-            'email' => [
-                'properties' => [
-                    ['name' => 'to', 'type' => 'string', 'required' => true],
-                    ['name' => 'subject', 'type' => 'string', 'required' => true],
-                    ['name' => 'body', 'type' => 'text', 'required' => true],
-                    ['name' => 'credential_id', 'type' => 'credential', 'required' => false],
-                ],
-            ],
-            'if' => [
-                'properties' => [
-                    ['name' => 'condition', 'type' => 'expression', 'required' => true],
-                ],
-            ],
-            'loop' => [
-                'properties' => [
-                    ['name' => 'mode', 'type' => 'select', 'options' => ['forEach', 'times'], 'default' => 'forEach'],
-                    ['name' => 'items_key', 'type' => 'string', 'required' => false],
-                    ['name' => 'times', 'type' => 'number', 'required' => false],
-                ],
-            ],
-            'database' => [
-                'properties' => [
-                    ['name' => 'operation', 'type' => 'select', 'options' => ['select', 'insert', 'update', 'delete'], 'required' => true],
-                    ['name' => 'query', 'type' => 'text', 'required' => true],
-                    ['name' => 'credential_id', 'type' => 'credential', 'required' => true],
-                ],
-            ],
-        ];
-
-        return $schemas[$type] ?? ['properties' => []];
+        $nodeType = NodeType::findByNodeType($type);
+        
+        if (!$nodeType) {
+            return ['properties' => []];
+        }
+        
+        return ['properties' => $nodeType->properties ?? []];
     }
 
     public function testNode(string $type, array $config)
