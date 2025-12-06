@@ -20,7 +20,6 @@ class WorkflowExecution extends Execution
         'finished_at',
         // Additional fields for WorkflowExecution
         'organization_id',
-        'user_id',
         'trigger_data',
         'execution_time_ms',
         'error_stack',

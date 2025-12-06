@@ -69,7 +69,7 @@ class ExecutionService
             'id' => Str::uuid(),
             'workflow_id' => $workflowId,
             'organization_id' => $orgId,
-            'user_id' => $userId,
+            'triggered_by' => $userId,
             'trigger_data' => $triggerData,
             'mode' => $mode,
             'status' => 'running',

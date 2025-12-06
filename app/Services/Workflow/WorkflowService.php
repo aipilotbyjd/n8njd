@@ -4,6 +4,7 @@ namespace App\Services\Workflow;
 
 use App\Enums\WorkflowStatus;
 use App\Models\Comment;
+use App\Services\Execution\ExecutionService;
 use App\Models\Workflow;
 use App\Models\WorkflowShare;
 use App\Models\WorkflowSubWorkflow;
@@ -352,7 +353,7 @@ class WorkflowService
     {
         $executionService = app(ExecutionService::class);
 
-        return $executionService->runWorkflow($workflowId, $user->organization_id, $user->id, [], 'test');
+        return $executionService->runWorkflow($workflowId, $user->org_id, $user->id, [], 'test');
     }
 
     public function healthCheck(string $workflowId)
