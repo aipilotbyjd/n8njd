@@ -16,8 +16,8 @@ class StoreWorkflowRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'nodes' => 'required|array',
-            'connections' => 'required|array',
+            'nodes' => 'present|array',
+            'edges' => 'present|array',
             'settings' => 'nullable|array',
             'tags' => 'nullable|array',
             'folder_id' => 'nullable|string|exists:folders,id',

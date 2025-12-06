@@ -19,8 +19,8 @@ class StoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'status' => ['sometimes', new Enum(WorkflowStatus::class)],
-            'nodes' => 'required|array',
-            'connections' => 'required|array',
+            'nodes' => 'present|array',
+            'edges' => 'present|array',
         ];
     }
 }

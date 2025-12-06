@@ -17,7 +17,7 @@ class UpdateWorkflowRequest extends FormRequest
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'nodes' => 'sometimes|array',
-            'connections' => 'sometimes|array',
+            'edges' => 'sometimes|array',
             'settings' => 'nullable|array',
             'tags' => 'nullable|array',
             'folder_id' => 'nullable|string|exists:folders,id',

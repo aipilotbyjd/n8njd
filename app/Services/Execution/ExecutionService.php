@@ -77,14 +77,14 @@ class ExecutionService
         ]);
 
         $nodes = collect($workflow->nodes);
-        $connections = collect($workflow->connections);
+        $edges = collect($workflow->edges);
 
         $graph = new Graph;
         foreach ($nodes as $node) {
             $graph->addNode($node['id']);
         }
-        foreach ($connections as $connection) {
-            $graph->addEdge($connection['source'], $connection['target']);
+        foreach ($edges as $edge) {
+            $graph->addEdge($edge['source'], $edge['target']);
         }
 
         $startNode = $nodes->firstWhere('type', 'start');
@@ -99,7 +99,7 @@ class ExecutionService
         }
 
         try {
-            $this->executeNode($startNode['id'], $triggerData, $workflowExecution, $nodes, $connections, $graph);
+            $this->executeNode($startNode['id'], $triggerData, $workflowExecution, $nodes, $edges, $graph);
             $workflowExecution->status = 'success';
 
             Log::info('Workflow execution completed successfully', [
@@ -129,7 +129,7 @@ class ExecutionService
         return $workflowExecution;
     }
 
-    private function executeNode(string $nodeId, array $inputData, WorkflowExecution $workflowExecution, $nodes, $connections, Graph $graph)
+    private function executeNode(string $nodeId, array $inputData, WorkflowExecution $workflowExecution, $nodes, $edges, Graph $graph)
     {
         $nodeModel = $nodes->firstWhere('id', $nodeId);
 
@@ -223,16 +223,16 @@ class ExecutionService
             $branch = $outputData['__branch'] ?? 'false';
             $data = $outputData['data'];
 
-            $nextConnection = $connections->firstWhere(function ($connection) use ($nodeId, $branch) {
-                return $connection['source'] === $nodeId && $connection['sourceHandle'] === $branch;
+            $nextEdge = $edges->firstWhere(function ($edge) use ($nodeId, $branch) {
+                return $edge['source'] === $nodeId && $edge['sourceHandle'] === $branch;
             });
 
-            if ($nextConnection) {
-                $this->executeNode($nextConnection['target'], $data, $workflowExecution, $nodes, $connections, $graph);
+            if ($nextEdge) {
+                $this->executeNode($nextEdge['target'], $data, $workflowExecution, $nodes, $edges, $graph);
             }
         } else {
             foreach ($successors as $successorId) {
-                $this->executeNode($successorId, $outputData, $workflowExecution, $nodes, $connections, $graph);
+                $this->executeNode($successorId, $outputData, $workflowExecution, $nodes, $edges, $graph);
             }
         }
     }
@@ -297,20 +297,20 @@ class ExecutionService
 
         $workflow = Workflow::find($execution->workflow_id);
         $nodes = collect($workflow->nodes);
-        $connections = collect($workflow->connections);
+        $edges = collect($workflow->edges);
 
         $graph = new Graph;
         foreach ($nodes as $node) {
             $graph->addNode($node['id']);
         }
-        foreach ($connections as $connection) {
-            $graph->addEdge($connection['source'], $connection['target']);
+        foreach ($edges as $edge) {
+            $graph->addEdge($edge['source'], $edge['target']);
         }
 
         $successors = $graph->getSuccessors($execution->waiting_node_id);
 
         foreach ($successors as $successorId) {
-            $this->executeNode($successorId, $execution->trigger_data, $execution, $nodes, $connections, $graph);
+            $this->executeNode($successorId, $execution->trigger_data, $execution, $nodes, $edges, $graph);
         }
 
         return ['status' => 'success', 'message' => 'Execution resumed.'];

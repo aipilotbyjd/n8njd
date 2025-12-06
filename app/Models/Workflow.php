@@ -76,6 +76,14 @@ class Workflow extends Model
     }
 
     /**
+     * The edges (connections) that belong to the workflow.
+     */
+    public function edges(): HasMany
+    {
+        return $this->hasMany(Edge::class);
+    }
+
+    /**
      * The executions that belong to the workflow.
      */
     public function executions(): HasMany

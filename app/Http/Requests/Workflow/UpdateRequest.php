@@ -20,7 +20,7 @@ class UpdateRequest extends FormRequest
             'description' => 'nullable|string',
             'status' => ['sometimes', new Enum(WorkflowStatus::class)],
             'nodes' => 'sometimes|array',
-            'connections' => 'sometimes|array',
+            'edges' => 'sometimes|array',
         ];
     }
 }

@@ -176,7 +176,7 @@ class WorkflowService
         }
 
         $workflow->nodes = $version->definition['nodes'];
-        $workflow->connections = $version->definition['connections'];
+        $workflow->edges = $version->definition['edges'];
         $workflow->settings = $version->definition['settings'];
         $workflow->version = $version->version;
         $workflow->save();
@@ -341,8 +341,8 @@ class WorkflowService
             return ['status' => 'error', 'message' => 'Workflow must have nodes.'];
         }
 
-        if (!isset($definition['connections']) || !is_array($definition['connections'])) {
-            return ['status' => 'error', 'message' => 'Workflow must have connections.'];
+        if (!isset($definition['edges']) || !is_array($definition['edges'])) {
+            return ['status' => 'error', 'message' => 'Workflow must have edges.'];
         }
 
         return ['status' => 'success', 'message' => 'Workflow is valid.'];

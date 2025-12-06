@@ -24,7 +24,9 @@ class WorkflowController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 15);
-        return $this->workflowService->getWorkflowsByOrg($request->user()->org_id, $perPage);
+        $workflows = $this->workflowService->getWorkflowsByOrg($request->user()->org_id, $perPage);
+
+        return $this->success($workflows, 'Workflows retrieved successfully');
     }
 
     public function store(StoreWorkflowRequest $request)
@@ -33,22 +35,47 @@ class WorkflowController extends Controller
         $data['organization_id'] = $request->user()->org_id;
         $data['created_by'] = $request->user()->id;
 
-        return $this->workflowService->createWorkflow($data);
+        $workflow = $this->workflowService->createWorkflow($data);
+        $workflow->load(['nodes', 'edges']);
+
+        return $this->created($workflow, 'Workflow created successfully');
     }
 
     public function show(string $id)
     {
-        return $this->workflowService->getWorkflow($id);
+        $workflow = $this->workflowService->getWorkflow($id);
+
+        if (!$workflow) {
+            return $this->notFound('Workflow not found.');
+        }
+
+        $workflow->load(['nodes', 'edges']);
+
+        return $this->success($workflow, 'Workflow retrieved successfully');
     }
 
     public function update(UpdateWorkflowRequest $request, string $id)
     {
-        return $this->workflowService->updateWorkflow($id, $request->validated());
+        $workflow = $this->workflowService->updateWorkflow($id, $request->validated());
+
+        if (!$workflow) {
+            return $this->notFound('Workflow not found.');
+        }
+
+        $workflow->load(['nodes', 'edges']);
+
+        return $this->success($workflow, 'Workflow updated successfully');
     }
 
     public function destroy(string $id)
     {
-        return $this->workflowService->deleteWorkflow($id);
+        $deleted = $this->workflowService->deleteWorkflow($id);
+
+        if (!$deleted) {
+            return $this->notFound('Workflow not found.');
+        }
+
+        return $this->success(null, 'Workflow deleted successfully');
     }
 
     public function versions(Request $request, string $id)
@@ -144,7 +171,7 @@ class WorkflowController extends Controller
             return $this->notFound('Workflow not found.');
         }
 
-        return response()->json($workflowData);
+        return $this->success($workflowData, 'Workflow exported successfully');
     }
 
     public function bulkImport(Request $request)
