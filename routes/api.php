@@ -143,6 +143,7 @@ Route::prefix('v1')->group(function () {
     });
     Route::post('workflows/{id}/execute', [ExecutionController::class, 'executeWorkflow'])->middleware(['auth:api']);
     Route::post('workflows/{id}/test-execute', [ExecutionController::class, 'testExecuteWorkflow'])->middleware(['auth:api']);
+    Route::get('workflows/{id}/executions', [ExecutionController::class, 'getByWorkflow'])->middleware(['auth:api']);
 
     // 5. CREDENTIALS SERVICE API
     Route::apiResource('credentials', CredentialController::class)->middleware(['auth:api']);

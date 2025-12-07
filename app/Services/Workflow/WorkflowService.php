@@ -353,7 +353,7 @@ class WorkflowService
     {
         $executionService = app(ExecutionService::class);
 
-        return $executionService->runWorkflow($workflowId, $user->org_id, $user->id, [], 'test');
+        return $executionService->runWorkflow($workflowId, $user->org_id, $user->id, [], 'manual');
     }
 
     public function healthCheck(string $workflowId)

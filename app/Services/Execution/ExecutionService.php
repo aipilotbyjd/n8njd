@@ -19,6 +19,11 @@ class ExecutionService
         return WorkflowExecution::where('organization_id', $orgId)->get();
     }
 
+    public function getExecutionsByWorkflow(string $workflowId)
+    {
+        return WorkflowExecution::where('workflow_id', $workflowId)->get();
+    }
+
     public function getExecution(string $id): ?WorkflowExecution
     {
         return WorkflowExecution::find($id);

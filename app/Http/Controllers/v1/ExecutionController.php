@@ -27,6 +27,11 @@ class ExecutionController extends Controller
         return $this->executionService->getExecution($id);
     }
 
+    public function getByWorkflow(Request $request, $workflowId)
+    {
+        return $this->executionService->getExecutionsByWorkflow($workflowId);
+    }
+
     public function destroy(Request $request, $id)
     {
         return $this->executionService->deleteExecution($id);
